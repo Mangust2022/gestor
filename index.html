@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ejercicios para Parálisis Facial</title>
+  <style>
+    body {
+      margin: 0;
+      background: #111;
+      font-family: sans-serif;
+      overflow: hidden;
+      color: white;
+    }
+
+    h1 {
+      text-align: center;
+      margin: 16px 0;
+      font-size: 1.4rem;
+    }
+
+    .container {
+      position: relative;
+      width: 100vw;
+      height: calc(100vh - 60px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .card {
+      position: relative;
+      width: 90vw;
+      max-width: 340px;
+      height: 80vh;
+      max-height: 520px;
+      perspective: 1000px;
+    }
+
+    .card-inner {
+      width: 100%;
+      height: 100%;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .card.flipped .card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card-front, .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 16px;
+      backface-visibility: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      box-sizing: border-box;
+    }
+
+    .card-number {
+      background: #fff;
+      color: #222;
+      font-weight: bold;
+      font-size: 1rem;
+      padding: 6px 14px;
+      border-radius: 30px;
+      margin-top: 4px;
+    }
+
+    .card-image {
+      width: 100%;
+      flex-grow: 1;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 16px 0;
+    }
+
+    .card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .card-name {
+      font-weight: bold;
+      letter-spacing: 1px;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    .card-back {
+      background: white;
+      color: #222;
+      transform: rotateY(180deg);
+      text-align: center;
+      font-size: 1.1rem;
+      padding: 30px 20px;
+      justify-content: center;
+    }
+
+    .arrow {
+      position: absolute;
+      top: 50%;
+      font-size: 2.5rem;
+      background: rgba(255,255,255,0.1);
+      color: white;
+      padding: 10px;
+      border-radius: 50%;
+      cursor: pointer;
+      user-select: none;
+      z-index: 2;
+    }
+
+    .arrow:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .left-arrow {
+      left: 10px;
+      transform: translateY(-50%);
+    }
+
+    .right-arrow {
+      right: 10px;
+      transform: translateY(-50%);
+    }
+  </style>
+</head>
+<body>
+
+<h1>Ejercicios para Parálisis Facial</h1>
+
+<div class="container">
+  <div class="arrow left-arrow" onclick="prevCard()">←</div>
+  <div class="arrow right-arrow" onclick="nextCard()">→</div>
+
+  <div id="cardContainer" class="card" onclick="flipCard(this)">
+    <div class="card-inner">
+      <div class="card-front" id="cardFront">
+        <div class="card-number" id="cardNumber">01</div>
+        <div class="card-image">
+          <img id="cardImg" src="" alt="Imagen del ejercicio">
+        </div>
+        <div class="card-name" id="cardName">Nombre del ejercicio</div>
+      </div>
+      <div class="card-back" id="cardText">Texto del ejercicio</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const cards = [
+    { name: 'Sopla suavemente con los labios', text: 'Inhala profundo y sopla como si apagaras una vela. Repite 5 veces.', img: 'imagenes/ej1.jpg', color: '#FF6B6B' },
+    { name: 'Sonrisa mantenida', text: 'Haz una gran sonrisa y mantenla durante 5 segundos. Repite varias veces.', img: 'imagenes/ej2.jpg', color: '#FFB347' },
+    { name: 'Levantar cejas', text: 'Eleva tus cejas lo más alto posible y mantén durante unos segundos.', img: 'imagenes/ej3.jpg', color: '#FFD700' },
+    { name: 'Inflar mejillas', text: 'Llena tus mejillas de aire, mantenlo y suelta lentamente.', img: 'imagenes/ej4.jpg', color: '#90EE90' },
+    { name: 'Cerrar un ojo y luego el otro', text: 'Cierra el ojo derecho y luego el izquierdo lentamente. Repite varias veces.', img: 'imagenes/ej5.jpg', color: '#87CEFA' },
+    { name: 'Puchero de labios', text: 'Haz un puchero (labios hacia afuera) como si fueras a besar. Mantén unos segundos.', img: 'imagenes/ej6.jpg', color: '#9370DB' },
+    { name: 'Mover lengua de lado a lado', text: 'Saca la lengua y muévela de izquierda a derecha. Hazlo lentamente.', img: 'imagenes/ej7.jpg', color: '#FF69B4' },
+    { name: 'Silbar una canción', text: 'Intenta silbar una melodía sencilla, aunque no suene perfecto.', img: 'imagenes/ej8.jpg', color: '#FFA07A' },
+    { name: 'Masticar lentamente', text: 'Imita el movimiento de masticar con la boca cerrada, lentamente.', img: 'imagenes/ej9.jpg', color: '#20B2AA' },
+    { name: 'Hacer burbujas en la boca', text: 'Llena la boca de agua y haz burbujas sin derramar. Repite varias veces.', img: 'imagenes/ej10.jpg', color: '#66CDAA' },
+    { name: 'Decir "O" y luego "E"', text: 'Pronuncia exageradamente las vocales "O" y "E" alternándolas.', img: 'imagenes/ej11.jpg', color: '#FF8C00' }
+  ];
+
+  let currentIndex = parseInt(localStorage.getItem("lastCardIndex")) || 0;
+
+  const cardNumber = document.getElementById('cardNumber');
+  const cardName = document.getElementById('cardName');
+  const cardText = document.getElementById('cardText');
+  const cardImg = document.getElementById('cardImg');
+  const cardContainer = document.getElementById('cardContainer');
+  const cardFront = document.getElementById('cardFront');
+
+  function showCard(index) {
+    const card = cards[index];
+    cardNumber.textContent = String(index + 1).padStart(2, '0');
+    cardName.textContent = card.name;
+    cardText.textContent = card.text;
+    cardImg.src = card.img;
+    cardFront.style.background = card.color;
+    cardContainer.classList.remove('flipped');
+    localStorage.setItem("lastCardIndex", index); // Guardar progreso
+  }
+
+  function flipCard(card) {
+    card.classList.toggle('flipped');
+  }
+
+  function nextCard() {
+    currentIndex = (currentIndex + 1) % cards.length;
+    showCard(currentIndex);
+  }
+
+  function prevCard() {
+    currentIndex = (currentIndex - 1 + cards.length) % cards.length;
+    showCard(currentIndex);
+  }
+
+  // Swipe para móviles
+  let touchStartX = 0;
+  document.addEventListener('touchstart', (e) => {
+    touchStartX = e.touches[0].clientX;
+  });
+
+  document.addEventListener('touchend', (e) => {
+    const touchEndX = e.changedTouches[0].clientX;
+    if (touchEndX - touchStartX > 50) prevCard();
+    else if (touchStartX - touchEndX > 50) nextCard();
+  });
+
+  showCard(currentIndex);
+</script>
+
+</body>
+</html>
