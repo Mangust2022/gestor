@@ -3,286 +3,61 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Ejercicios para Parálisis Facial</title>
+  <title>Menú Principal</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <style>
     body {
       margin: 0;
       padding: 0;
-      font-family: sans-serif;
-      color: white;
-      background: #111;
-      position: relative;
-      overflow-x: hidden;
-    }
-
-    body::before {
-      content: "";
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ266xgmaVOwt_NqFm-3qyAdbZ_zD2iVIyDrA&s') no-repeat center center/cover;
-      opacity: 0.1;
-      z-index: -1;
-    }
-
-    h1 {
-      text-align: center;
-      margin: 1rem 0;
-      font-size: 1.2rem;
-    }
-
-    .home-btn {
-      position: fixed;
-      top: 10px;
-      left: 10px;
-      z-index: 10;
-      background: rgba(255, 255, 255, 0.2);
-      border: none;
-      color: white;
-      font-size: 1.5rem;
-      padding: 0.3rem 0.7rem;
-      border-radius: 999px;
-      cursor: pointer;
-      backdrop-filter: blur(5px);
-    }
-
-    .container {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: calc(100vh - 80px);
-      padding: 0 1rem;
-      box-sizing: border-box;
-      position: relative;
     }
 
-    .card {
-      width: 100%;
-      max-width: 360px;
-      aspect-ratio: 3/5;
-      perspective: 1000px;
-      animation: fadeIn 0.6s ease;
-      background: repeating-linear-gradient(
-        45deg,
-        rgba(255,255,255,0.05),
-        rgba(255,255,255,0.05) 10px,
-        rgba(255,255,255,0.1) 10px,
-        rgba(255,255,255,0.1) 20px
-      );
-      border-radius: 16px;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
-    }
-
-    .card-inner {
-      width: 100%;
-      height: 100%;
-      position: relative;
-      transition: transform 0.6s;
-      transform-style: preserve-3d;
-    }
-
-    .card.flipped .card-inner {
-      transform: rotateY(180deg);
-    }
-
-    .card-front,
-    .card-back {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      border-radius: 16px;
-      backface-visibility: hidden;
+    .menu {
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem;
-      box-sizing: border-box;
-      border: 4px solid white;
-      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+      gap: 20px;
     }
 
-    .card-back {
-      background: repeating-linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 0.05),
-        rgba(255, 255, 255, 0.05) 10px,
-        rgba(255, 255, 255, 0.1) 10px,
-        rgba(255, 255, 255, 0.1) 20px
-      );
-      color: #222;
-      transform: rotateY(180deg);
-      font-size: 1rem;
-      text-align: center;
-      padding: 1.5rem;
-      line-height: 1.6;
-      border: 4px solid white;
-      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+    .menu button {
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 16px;
-      font-weight: 500;
-    }
-
-    .card-number {
-      font-size: 2rem;
-      font-weight: bold;
-      background-color: rgba(255, 255, 255, 0.8);
-      color: #333;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-      margin-bottom: 1rem;
-    }
-
-    .card-image {
-      width: 100%;
-      flex-grow: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 1rem 0;
+      gap: 10px;
+      padding: 15px 25px;
+      font-size: 1.2rem;
+      border: none;
       border-radius: 12px;
-      overflow: hidden;
-      background: white;
-    }
-
-    .card-image img {
-      width: 100%;
-      height: auto;
-      object-fit: contain;
-    }
-
-    .card-name {
-      font-weight: bold;
-      font-size: 1rem;
-      text-align: center;
-    }
-
-    .arrow {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 2rem;
-      background: rgba(255,255,255,0.2);
+      background-color: #0077cc;
       color: white;
-      padding: 0.5rem;
-      border-radius: 50%;
-      z-index: 2;
       cursor: pointer;
+      transition: background-color 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     }
 
-    .left-arrow {
-      left: 1rem;
+    .menu button:hover {
+      background-color: #005fa3;
     }
 
-    .right-arrow {
-      right: 1rem;
-    }
-
-    @media (max-height: 600px) {
-      .card {
-        aspect-ratio: 3/4;
-      }
+    .menu i {
+      font-size: 1.5rem;
     }
   </style>
 </head>
 <body>
-  <button class="home-btn" onclick="goHome()">🏠</button>
-  <h1>Ejercicios para Parálisis Facial</h1>
-  <div class="container">
-    <div class="arrow left-arrow" onclick="prevCard()">←</div>
-    <div class="arrow right-arrow" onclick="nextCard()">→</div>
-    <div id="cardContainer" class="card" onclick="flipCard(this)">
-      <div class="card-inner">
-        <div class="card-front" id="cardFront">
-          <div class="card-number" id="cardNumber">01</div>
-          <div class="card-image">
-            <img id="cardImg" src="" alt="Imagen del ejercicio">
-          </div>
-          <div class="card-name" id="cardName">Nombre del ejercicio</div>
-        </div>
-        <div class="card-back" id="cardText">Texto del ejercicio</div>
-      </div>
-    </div>
+  <div class="menu">
+    <button onclick="location.href='ejercicios.html'">
+      <i class="fas fa-smile"></i>
+      Ejercicios Faciales
+    </button>
+    <button onclick="location.href='masaje.html'">
+      <i class="fas fa-hands"></i>
+      Masaje Facial
+    </button>
   </div>
-  <script>
-    const cards = [
-      { name: 'Sopla suavemente con los labios', text: 'Inhala profundo y sopla como si apagaras una vela. Repite 5 veces.', img: 'imagenes/ej1.jpg', color: '#FF6B6B' },
-      { name: 'Sonrisa mantenida', text: 'Haz una gran sonrisa y mantenla durante 5 segundos. Repite varias veces.', img: 'imagenes/ej2.jpg', color: '#FFB347' },
-      { name: 'Levantar cejas', text: 'Eleva tus cejas lo más alto posible y mantén durante unos segundos.', img: 'imagenes/ej3.jpg', color: '#FFD700' },
-      { name: 'Inflar mejillas', text: 'Llena tus mejillas de aire, mantenlo y suelta lentamente.', img: 'imagenes/ej4.jpg', color: '#90EE90' },
-      { name: 'Cerrar un ojo y luego el otro', text: 'Cierra el ojo derecho y luego el izquierdo lentamente. Repite varias veces.', img: 'imagenes/ej5.jpg', color: '#87CEFA' },
-      { name: 'Puchero de labios', text: 'Haz un puchero (labios hacia afuera) como si fueras a besar. Mantén unos segundos.', img: 'imagenes/ej6.jpg', color: '#9370DB' },
-      { name: 'Mover lengua de lado a lado', text: 'Saca la lengua y muévela de izquierda a derecha. Hazlo lentamente.', img: 'imagenes/ej7.jpg', color: '#FF69B4' },
-      { name: 'Silbar una canción', text: 'Intenta silbar una melodía sencilla, aunque no suene perfecto.', img: 'imagenes/ej8.jpg', color: '#FFA07A' },
-      { name: 'Masticar lentamente', text: 'Imita el movimiento de masticar con la boca cerrada, lentamente.', img: 'imagenes/ej9.jpg', color: '#20B2AA' },
-      { name: 'Hacer burbujas en la boca', text: 'Llena la boca de agua y haz burbujas sin derramar. Repite varias veces.', img: 'imagenes/ej10.jpg', color: '#66CDAA' },
-      { name: 'Decir "O" y luego "E"', text: 'Pronuncia exageradamente las vocales "O" y "E" alternándolas.', img: 'imagenes/ej11.jpg', color: '#FF8C00' }
-    ];
-
-    let currentIndex = parseInt(localStorage.getItem("lastCardIndex")) || 0;
-
-    const cardNumber = document.getElementById('cardNumber');
-    const cardName = document.getElementById('cardName');
-    const cardText = document.getElementById('cardText');
-    const cardImg = document.getElementById('cardImg');
-    const cardContainer = document.getElementById('cardContainer');
-    const cardFront = document.getElementById('cardFront');
-
-    function showCard(index) {
-      const card = cards[index];
-      cardNumber.textContent = String(index + 1).padStart(2, '0');
-      cardName.textContent = card.name;
-      cardText.textContent = card.text;
-      cardImg.src = card.img;
-      cardFront.style.background = card.color;
-      cardText.style.background = card.color;
-      cardContainer.classList.remove('flipped');
-      localStorage.setItem("lastCardIndex", index);
-      cardContainer.style.animation = 'none';
-      void cardContainer.offsetWidth;
-      cardContainer.style.animation = null;
-    }
-
-    function flipCard(card) {
-      card.classList.toggle('flipped');
-    }
-
-    function nextCard() {
-      currentIndex = (currentIndex + 1) % cards.length;
-      showCard(currentIndex);
-    }
-
-    function prevCard() {
-      currentIndex = (currentIndex - 1 + cards.length) % cards.length;
-      showCard(currentIndex);
-    }
-
-    function goHome() {
-      window.location.href = "/";
-    }
-
-    let touchStartX = 0;
-    document.addEventListener('touchstart', (e) => {
-      touchStartX = e.touches[0].clientX;
-    });
-
-    document.addEventListener('touchend', (e) => {
-      const touchEndX = e.changedTouches[0].clientX;
-      if (touchEndX - touchStartX > 50) prevCard();
-      else if (touchStartX - touchEndX > 50) nextCard();
-    });
-
-    showCard(currentIndex);
-  </script>
 </body>
 </html>
