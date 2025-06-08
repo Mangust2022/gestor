@@ -3,18 +3,43 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Menú Principal</title>
+  <title>Vitalis</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <style>
-    body {
+    * {
       margin: 0;
       padding: 0;
-      font-family: Arial, sans-serif;
-      background: #f0f0f0;
-      height: 100vh;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      background: url('https://images.pexels.com/photos/19332101/pexels-photo-19332101/free-photo-of-mar-puesta-de-sol-oceano-silueta.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500') no-repeat center center fixed;
+      background-size: cover;
       display: flex;
       justify-content: center;
       align-items: center;
+      padding: 20px;
+      position: relative;
+    }
+
+    .container {
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 40px 30px;
+      border-radius: 20px;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+      color: white;
+      text-align: center;
+      width: 100%;
+      max-width: 450px;
+      backdrop-filter: blur(10px);
+    }
+
+    .container h1 {
+      font-size: 2.5rem;
+      margin-bottom: 30px;
+      text-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
     }
 
     .menu {
@@ -27,37 +52,130 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      padding: 15px 25px;
+      gap: 15px;
+      padding: 18px 30px;
       font-size: 1.2rem;
       border: none;
       border-radius: 12px;
-      background-color: #0077cc;
+      background: linear-gradient(to right, #00b4db, #0083b0);
       color: white;
       cursor: pointer;
-      transition: background-color 0.3s ease;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
     }
 
     .menu button:hover {
-      background-color: #005fa3;
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
     }
 
     .menu i {
       font-size: 1.5rem;
     }
+
+    .info-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      font-size: 1.4rem;
+      background-color: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 45px;
+      height: 45px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      backdrop-filter: blur(5px);
+      z-index: 100;
+    }
+
+    .info-btn:hover {
+      background-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .modal {
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      background-color: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+      max-width: 320px;
+      display: none;
+      z-index: 99;
+    }
+
+    .modal p {
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+
+    .modal button {
+      margin-top: 12px;
+      padding: 8px 15px;
+      background-color: #ffffff20;
+      border: none;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .modal button:hover {
+      background-color: #ffffff40;
+    }
+
+    @media (max-width: 480px) {
+      .container h1 {
+        font-size: 1.8rem;
+      }
+
+      .menu button {
+        font-size: 1rem;
+        padding: 15px 20px;
+      }
+
+      .modal {
+        bottom: 100px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="menu">
-    <button onclick="location.href='ejercicios.html'">
-      <i class="fas fa-smile"></i>
-      Ejercicios Faciales
-    </button>
-    <button onclick="location.href='masaje.html'">
-      <i class="fas fa-hands"></i>
-      Masaje Facial
-    </button>
+  <div class="container">
+    <h1>Vitalis</h1>
+    <div class="menu">
+      <button onclick="location.href='ejercicios.html'">
+        <i class="fas fa-smile"></i>
+        Ejercicios Faciales
+      </button>
+      <button onclick="location.href='masaje.html'">
+        <i class="fas fa-hands"></i>
+        Masaje Facial
+      </button>
+    </div>
   </div>
+
+  <!-- Botón de información -->
+  <button class="info-btn" onclick="toggleModal()">?</button>
+
+  <!-- Modal de información -->
+  <div class="modal" id="infoModal">
+    <p>Creado con esmero por Karla Rivera y Manuel Rojas, pensando en quienes enfrentan este camino con valentía. Junio de 2025.</p>
+    <button onclick="toggleModal()">Cerrar</button>
+  </div>
+
+  <script>
+    function toggleModal() {
+      const modal = document.getElementById('infoModal');
+      modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
+    }
+  </script>
 </body>
 </html>
