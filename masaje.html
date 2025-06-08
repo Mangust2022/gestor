@@ -5,91 +5,208 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Masaje Facial</title>
   <style>
-    body {
-      background: linear-gradient(135deg, #111, #333);
-      font-family: 'Segoe UI', sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
+    * {
       margin: 0;
-      color: white;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    h1 {
-      margin-bottom: 20px;
-      font-size: 2rem;
-      color: #f0f0f0;
-    }
-
-    .image-container {
-      position: relative;
+    html, body {
+      height: 100%;
+      width: 100%;
+      font-family: 'Segoe UI', sans-serif;
       overflow: hidden;
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-      transition: transform 0.3s ease;
-      background: #000;
-      max-width: 90%;
+      position: relative;
     }
 
-    .image-container img {
+    .background {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-image: url('https://wallpapers.com/images/hd/sea-background-trenr650qbkk7nr1.jpg');
+      background-size: cover;
+      background-position: center;
+      z-index: -3;
+    }
+
+    .overlay {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: -2;
+    }
+
+    .zoom-image {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(1);
+      max-width: none;
       width: 100%;
       height: auto;
       transition: transform 0.3s ease;
-      border-radius: 20px;
+      z-index: 1;
+      cursor: grab;
+      user-select: none;
+      touch-action: none;
+    }
+
+    header {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      font-size: 2.5rem;
+      font-weight: bold;
+      text-shadow: 2px 2px 5px rgba(0,0,0,0.7);
+      z-index: 10;
+    }
+
+    .home-button {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 1rem;
+      padding: 10px 15px;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      z-index: 10;
+      transition: background 0.2s ease;
+    }
+
+    .home-button:hover {
+      background: rgba(0, 0, 0, 0.8);
     }
 
     .controls {
-      margin-top: 20px;
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
       display: flex;
+      flex-wrap: wrap;
       gap: 15px;
+      z-index: 10;
     }
 
     button {
       padding: 10px 20px;
       font-size: 1rem;
-      background: #ff0055;
+      background: rgba(255, 0, 85, 0.85);
       color: white;
       border: none;
       border-radius: 10px;
       cursor: pointer;
       transition: background 0.2s ease;
+      backdrop-filter: blur(5px);
     }
 
     button:hover {
-      background: #ff3366;
+      background: rgba(255, 51, 102, 0.95);
     }
   </style>
 </head>
 <body>
-  <h1>Masaje Facial</h1>
-  <div class="image-container" id="imageContainer">
-    <img src="https://i.imgur.com/1dNqKnl.jpg" alt="Masaje Facial" id="faceImage" />
-  </div>
 
+  <!-- Fondo -->
+  <div class="background"></div>
+  <div class="overlay"></div>
+
+  <!-- Imagen de masaje -->
+  <img src="imagenes/1.jpg" alt="Masaje Facial" id="faceImage" class="zoom-image" draggable="false" />
+
+  <!-- Título y botón Home -->
+  <header>Masaje Facial</header>
+  <a href="index.html" class="home-button">🏠 Home</a>
+
+  <!-- Controles -->
   <div class="controls">
     <button onclick="zoomIn()">🔍 Aumentar</button>
     <button onclick="zoomOut()">🔎 Disminuir</button>
+    <button onclick="resetImage()">🔄 Reiniciar imagen</button>
   </div>
 
+  <!-- Script -->
   <script>
-    let scale = 1;
     const image = document.getElementById("faceImage");
+    let scale = 1;
+    let translateX = 0;
+    let translateY = 0;
+    let isDragging = false;
+    let startX, startY;
+
+    function updateTransform() {
+      image.style.transform = `translate(calc(-50% + ${translateX}px), calc(-50% + ${translateY}px)) scale(${scale})`;
+    }
 
     function zoomIn() {
       scale += 0.1;
-      updateZoom();
+      updateTransform();
     }
 
     function zoomOut() {
       scale = Math.max(0.5, scale - 0.1);
-      updateZoom();
+      updateTransform();
     }
 
-    function updateZoom() {
-      image.style.transform = `scale(${scale})`;
+    function resetImage() {
+      scale = 1;
+      translateX = 0;
+      translateY = 0;
+      updateTransform();
     }
+
+    // Mouse
+    image.addEventListener("mousedown", (e) => {
+      isDragging = true;
+      startX = e.clientX;
+      startY = e.clientY;
+      image.style.cursor = "grabbing";
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+      translateX += e.clientX - startX;
+      translateY += e.clientY - startY;
+      startX = e.clientX;
+      startY = e.clientY;
+      updateTransform();
+    });
+
+    window.addEventListener("mouseup", () => {
+      isDragging = false;
+      image.style.cursor = "grab";
+    });
+
+    // Touch
+    image.addEventListener("touchstart", (e) => {
+      if (e.touches.length === 1) {
+        isDragging = true;
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+      }
+    });
+
+    image.addEventListener("touchmove", (e) => {
+      if (!isDragging) return;
+      const touch = e.touches[0];
+      translateX += touch.clientX - startX;
+      translateY += touch.clientY - startY;
+      startX = touch.clientX;
+      startY = touch.clientY;
+      updateTransform();
+    });
+
+    window.addEventListener("touchend", () => {
+      isDragging = false;
+    });
   </script>
+
 </body>
 </html>
