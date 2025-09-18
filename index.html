@@ -4,593 +4,244 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Inventario de Casa</title>
-  <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/10794/10794226.png" type="image/png" />
   <style>
-    :root{
-      --bg:#0f1724;
-      --panel:#0b1220;
-      --card:#071427;
-      --muted:#9aa6b8;
-      --text:#e6eef6;
-      --accent:#06b6d4;
-      --accent-2:#7c3aed;
-      --success:#16a34a;
-      --danger:#ef4444;
-      --glass: rgba(255,255,255,0.03);
-      font-family: Inter, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    }
+    body{font-family:'Segoe UI',sans-serif;margin:0;padding:0;background:#f1f5f9;color:#333;}
+    header{background:linear-gradient(135deg,#1e3a8a,#2563eb);color:white;
+      padding:18px;text-align:center;font-size:1.4em;font-weight:bold;
+      box-shadow:0 2px 8px rgba(0,0,0,.2);letter-spacing:0.5px;}
+    main{padding:15px;}
 
-    /* Reset & base */
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;background:
-      linear-gradient(180deg,#071421 0%, #071b29 60%);
-      color:var(--text);-webkit-font-smoothing:antialiased}
-    .app{max-width:1100px;margin:18px auto;padding:14px}
+    .btn{padding:10px 14px;border:none;border-radius:8px;cursor:pointer;
+      font-size:15px;font-weight:500;transition:.2s;}
+    .btn-primary{background:#2563eb;color:#fff;}
+    .btn-primary:hover{background:#1d4ed8;}
+    .btn-danger{background:#dc2626;color:#fff;}
+    .btn-danger:hover{background:#b91c1c;}
+    .btn-gray{background:#9ca3af;color:#fff;}
+    .btn-gray:hover{background:#6b7280;}
+    .btn-sm{padding:6px 10px;font-size:13px;}
 
-    /* Header */
-    header{display:flex;gap:12px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
-    .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-weight:700;color:#04131a;box-shadow:0 10px 30px rgba(12,18,30,0.6)}
-    h1{font-size:18px;margin:0}
-    p.lead{margin:0;color:var(--muted);font-size:13px}
+    .card{background:#fff;border-radius:10px;box-shadow:0 1px 6px rgba(0,0,0,.12);
+      padding:12px 14px;margin-bottom:10px;display:flex;justify-content:space-between;
+      align-items:center;flex-wrap:wrap;gap:10px;}
+    .info{flex:1;min-width:150px;}
+    .name{font-weight:600;font-size:16px;}
+    .details{font-size:13px;color:#555;margin-top:2px;}
 
-    /* Controls */
-    .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0}
-    .search{flex:1;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.02);padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
-    .search input{background:transparent;border:0;outline:none;color:inherit;flex:1;font-size:14px}
-    select,input[type=number]{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:7px 8px;border-radius:8px;color:inherit;font-size:14px}
+    .cat-title{font-weight:bold;font-size:18px;margin:20px 0 10px;padding:8px 12px;
+      background:#e0e7ff;color:#1e3a8a;border-radius:8px;
+      box-shadow:inset 0 1px 3px rgba(0,0,0,.1);}
+    .resumen{font-size:14px;color:#444;margin:5px 0 15px 5px;}
 
-    .btn{background:var(--glass);border:1px solid rgba(255,255,255,0.04);padding:8px 12px;border-radius:10px;color:inherit;cursor:pointer;font-size:14px;touch-action:manipulation}
-    .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#08111a;font-weight:700;border:none}
-    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06)}
+    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+      background:rgba(0,0,0,.5);justify-content:center;align-items:center;z-index:1000;}
+    .modal-card{background:#fff;border-radius:12px;padding:20px;width:90%;max-width:420px;
+      box-shadow:0 3px 10px rgba(0,0,0,.25);animation:fadeIn .2s ease-out;}
+    @keyframes fadeIn{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+    .form-row{margin-bottom:12px;}
+    input,select{width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;font-size:15px;}
 
-    /* Layout */
-    .layout{display:grid;grid-template-columns:1fr 340px;gap:12px}
-    .panel{background:var(--card);padding:12px;border-radius:12px;box-shadow:0 8px 24px rgba(2,6,23,0.6)}
+    #topBar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:15px;}
+    #search{flex:1;padding:10px;font-size:15px;border-radius:8px;border:1px solid #ccc;}
 
-    /* List / table / cards */
-    table{width:100%;border-collapse:collapse;font-size:14px}
-    thead th{font-size:12px;color:var(--muted);text-align:left;padding:8px 6px}
-    tbody td{padding:10px 6px;border-top:1px dashed rgba(255,255,255,0.03);vertical-align:middle}
-    .qty{display:flex;gap:6px;align-items:center}
-    .chip{background:rgba(255,255,255,0.03);padding:6px 8px;border-radius:8px;font-size:13px}
-
-    .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
-    .item-card{padding:12px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);border:1px solid rgba(255,255,255,0.03)}
-    .item-head{display:flex;gap:10px;align-items:center}
-    .item-thumb{width:56px;height:56px;border-radius:10px;background:rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center;font-weight:700;overflow:hidden}
-    .item-thumb img{width:100%;height:100%;object-fit:cover;display:block}
-    .muted{color:var(--muted);font-size:13px}
-    .low{color:var(--danger);font-weight:700}
-
-    /* Modal */
-    .modal{position:fixed;inset:0;background:linear-gradient(180deg, rgba(2,6,23,0.6), rgba(2,6,23,0.8));display:flex;align-items:center;justify-content:center;padding:12px;z-index:60}
-    .modal-card{width:760px;max-width:100%;background:#06121b;border-radius:12px;padding:16px;border:1px solid rgba(255,255,255,0.04)}
-    .form-row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
-    .form-row input,.form-row select,textarea{flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit}
-
-    .img-preview{width:96px;height:96px;border-radius:8px;overflow:hidden;background:rgba(255,255,255,0.02);display:flex;align-items:center;justify-content:center}
-    .img-preview img{width:100%;height:100%;object-fit:cover;display:block}
-
-    .footer{margin-top:14px;color:var(--muted);font-size:13px}
-    .small{font-size:12px;color:var(--muted)}
-    .toast{position:fixed;right:18px;bottom:18px;background:#071428;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);box-shadow:0 10px 30px rgba(2,6,23,0.6)}
-
-    /* Mobile tweaks */
-    @media (max-width:920px){
-      .layout{grid-template-columns:1fr}
-      .controls{flex-direction:column;align-items:stretch}
-      .modal-card{width:100%;padding:12px}
-      .item-thumb{width:48px;height:48px}
-    }
+    @media(min-width:700px){.card{flex-wrap:nowrap;}}
   </style>
 </head>
 <body>
-  <div class="app">
-    <header>
-      <div class="logo">IC</div>
-      <div>
-        <h1>Inventario de Casa</h1>
-        <p class="lead">Administra productos del hogar. Guardado local (localStorage). Fotos locales o por URL.</p>
-      </div>
-    </header>
-
-    <div class="controls">
-      <div class="search" role="search" aria-label="Buscar">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="1.6"></circle></svg>
-        <input id="q" placeholder="Buscar por nombre, categoría o nota..." />
-      </div>
-
-      <select id="categoryFilter" aria-label="Filtrar categoría">
-        <option value="">Filtrar categoría (todas)</option>
-      </select>
-
-      <select id="sortBy" aria-label="Ordenar">
-        <option value="name">Ordenar: Nombre</option>
-        <option value="qty_asc">Cantidad (menor primero)</option>
-        <option value="qty_desc">Cantidad (mayor primero)</option>
-        <option value="lowstock">Priorizar bajo stock</option>
-      </select>
-
-      <button class="btn primary" id="btnAdd">+ Nuevo producto</button>
-      <button class="btn" id="btnExport">Exportar</button>
-      <button class="btn" id="btnImport">Importar</button>
+  <header>📦 Inventario de Casa</header>
+  <main>
+    <div id="topBar">
+      <input id="search" placeholder="Buscar por nombre o categoría...">
+      <button class="btn btn-primary" onclick="openAdd()">+ Agregar</button>
+      <button class="btn btn-gray" onclick="exportCSV()">📥 Exportar</button>
     </div>
+    <div id="list"></div>
+  </main>
 
-    <div class="layout">
-      <div class="panel">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+  <!-- Modal Agregar -->
+  <div id="modalAdd" class="modal">
+    <div class="modal-card">
+      <h2>Agregar Producto</h2>
+      <div class="form-row"><input id="addName" placeholder="Nombre"></div>
+      <div class="form-row"><input id="addQty" type="number" step="0.01" placeholder="Cantidad"></div>
+      <div class="form-row">
+        <select id="addUnit">
+          <option value="pieza">Pieza</option><option value="kg">Kg</option>
+          <option value="g">Gramos</option><option value="L">Litro</option><option value="ml">Mililitro</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <select id="addCat">
+          <option value="General">General</option><option value="Cocina">Cocina</option>
+          <option value="Limpieza">Limpieza</option><option value="Comida">Comida</option>
+          <option value="Baño">Baño</option>
+        </select>
+      </div>
+      <div class="form-row" style="display:flex;gap:8px">
+        <button class="btn btn-primary" style="flex:1" onclick="addItem()">Guardar</button>
+        <button class="btn btn-gray" style="flex:1" onclick="closeAdd()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Salida -->
+  <div id="modalSalida" class="modal">
+    <div class="modal-card">
+      <h2 id="salidaTitle">Dar salida</h2>
+      <p id="salidaInfo" style="font-size:14px;color:#555;margin-bottom:10px"></p>
+      <div class="form-row">
+        <input id="salidaQty" type="number" step="0.01" min="0" value="1" placeholder="Cantidad a dar de salida" />
+      </div>
+      <div style="display:flex;gap:8px">
+        <button id="confirmSalida" class="btn btn-danger" style="flex:1">Confirmar</button>
+        <button id="cancelSalida" class="btn btn-gray" style="flex:1">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Editar -->
+  <div id="modalEdit" class="modal">
+    <div class="modal-card">
+      <h2>Editar Producto</h2>
+      <div class="form-row"><input id="editName" placeholder="Nombre"></div>
+      <div class="form-row"><input id="editQty" type="number" step="0.01" placeholder="Cantidad"></div>
+      <div class="form-row">
+        <select id="editUnit">
+          <option value="pieza">Pieza</option><option value="kg">Kg</option>
+          <option value="g">Gramos</option><option value="L">Litro</option><option value="ml">Mililitro</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <select id="editCat">
+          <option value="General">General</option><option value="Cocina">Cocina</option>
+          <option value="Limpieza">Limpieza</option><option value="Comida">Comida</option>
+          <option value="Baño">Baño</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button id="confirmEdit" class="btn btn-primary" style="flex:1">Guardar</button>
+        <button id="cancelEdit" class="btn btn-gray" style="flex:1">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const q=s=>document.querySelector(s);const list=q("#list");
+  let data=JSON.parse(localStorage.getItem("invCasa")||"[]");
+  let searchTerm="";
+
+  function save(){localStorage.setItem("invCasa",JSON.stringify(data));render();}
+
+  function render(){
+    list.innerHTML="";
+    let filtered=data.filter(it=>{
+      if(!searchTerm)return true;
+      return it.name.toLowerCase().includes(searchTerm) || it.cat.toLowerCase().includes(searchTerm);
+    });
+    if(filtered.length===0){list.innerHTML="<p style='color:#666'>No hay productos</p>";return;}
+    const grupos={};
+    filtered.forEach(it=>{if(!grupos[it.cat])grupos[it.cat]=[];grupos[it.cat].push(it);});
+    for(const cat in grupos){
+      const items=grupos[cat];
+      let total=items.reduce((a,b)=>a+b.qty,0);
+      const catDiv=document.createElement("div");
+      catDiv.innerHTML=`<div class="cat-title">${cat}</div>
+        <div class="resumen">Productos: ${items.length} | Total: ${total.toFixed(2)}</div>`;
+      items.forEach(it=>{
+        const div=document.createElement("div");
+        div.className="card";
+        div.innerHTML=`
+          <div class="info">
+            <div class="name">${it.name}</div>
+            <div class="details">${it.qty.toFixed(2)} ${it.unit}</div>
+          </div>
           <div>
-            <div class="small">Productos</div>
-            <div id="stats" style="font-weight:700;font-size:18px">0 artículos — 0 categorías</div>
-          </div>
-          <div class="small muted">Auto-guardado local · siempre privado</div>
-        </div>
-
-        <div id="listArea"></div>
-
-        <div class="footer">
-          Consejo: Toca un producto para editar. Usa +/- para ajustar cantidades. Exporta un backup con "Exportar".
-        </div>
-      </div>
-
-      <aside class="panel">
-        <div style="margin-bottom:12px">
-          <div class="small">Visión rápida</div>
-          <canvas id="catChart" width="300" height="160" style="width:100%;height:160px;background:transparent;margin-top:8px;border-radius:8px"></canvas>
-        </div>
-
-        <div style="margin-top:12px">
-          <div class="small">Acciones</div>
-          <div style="display:flex;gap:8px;margin-top:8px">
-            <button class="btn ghost" id="btnClearAll">Limpiar todo</button>
-            <button class="btn ghost" id="btnSeed">Poner muestra</button>
-          </div>
-        </div>
-
-        <div style="margin-top:12px">
-          <div class="small">Importante</div>
-          <div class="muted" style="margin-top:8px">Este inventario se guarda en tu navegador. Si borras los datos del navegador, perderás la data.</div>
-        </div>
-      </aside>
-    </div>
-  </div>
-
-  <!-- Modal: Form -->
-  <div id="modal" class="modal" style="display:none">
-    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <strong id="modalTitle">Nuevo producto</strong>
-        <button class="btn" id="closeModal">Cerrar</button>
-      </div>
-
-      <div>
-        <div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap">
-          <div style="flex:1;min-width:220px">
-            <div class="form-row">
-              <input id="name" placeholder="Nombre del producto *" />
-              <input id="brand" placeholder="Marca (opcional)" />
-            </div>
-            <div class="form-row">
-              <input id="qty" type="number" min="0" value="1" />
-              <input id="lowThreshold" type="number" min="0" value="2" title="Bajo stock cuando <= este número" />
-              <select id="category">
-                <option value="">Categoría</option>
-                <option>Alimentos</option>
-                <option>Limpieza</option>
-                <option>Baño</option>
-                <option>Hogar</option>
-                <option>Otros</option>
-              </select>
-            </div>
-            <div class="form-row">
-              <input id="barcode" placeholder="Código/Nota corta" />
-              <input id="image" placeholder="URL imagen (opcional)" />
-            </div>
-
-            <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
-              <input id="imageFile" type="file" accept="image/*" style="display:none" />
-              <button class="btn" id="btnPickImage">Subir imagen</button>
-              <button class="btn" id="btnClearImage" title="Quitar imagen" style="display:none">Quitar imagen</button>
-              <div class="small muted">Puedes pegar una URL o subir una foto desde tu celular.</div>
-            </div>
-
-            <div style="margin-bottom:8px">
-              <textarea id="note" placeholder="Notas largas (ej. fecha de compra, ubicación)" rows="3" style="width:100%;border-radius:8px;padding:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit"></textarea>
-            </div>
-          </div>
-
-          <div style="width:120px;min-width:96px;display:flex;flex-direction:column;gap:8px;align-items:center">
-            <div class="img-preview" id="imgPreview" title="Previsualización imagen">
-              <!-- imagen va aquí -->
-            </div>
-            <div class="small muted" style="text-align:center">Previsualización</div>
-          </div>
-        </div>
-
-        <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
-          <button class="btn" id="deleteBtn" style="display:none;background:rgba(255,0,0,0.06);border-color:rgba(255,0,0,0.12);color:var(--danger)">Eliminar</button>
-          <button class="btn primary" id="saveBtn">Guardar</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="toast" class="toast" style="display:none">Guardado</div>
-
-  <input id="fileInput" type="file" accept="application/json" style="display:none" />
-
-  <script>
-  (function(){
-    const LS_KEY = 'household_inventory_v1'; // mantiene compatibilidad con datos previos
-    const q = sel => document.querySelector(sel);
-    const $list = q('#listArea');
-    const $stats = q('#stats');
-    const $q = q('#q');
-    const $catFilter = q('#categoryFilter');
-    const $sortBy = q('#sortBy');
-
-    const $modal = q('#modal');
-    const $modalTitle = q('#modalTitle');
-    const $deleteBtn = q('#deleteBtn');
-    const $saveBtn = q('#saveBtn');
-    const $closeModal = q('#closeModal');
-
-    const $name = q('#name');
-    const $brand = q('#brand');
-    const $qty = q('#qty');
-    const $lowThreshold = q('#lowThreshold');
-    const $category = q('#category');
-    const $barcode = q('#barcode');
-    const $note = q('#note');
-    const $image = q('#image');
-    const $imgPreview = q('#imgPreview');
-    const $imageFile = q('#imageFile');
-    const $btnPickImage = q('#btnPickImage');
-    const $btnClearImage = q('#btnClearImage');
-
-    let data = [];
-    let editingId = null;
-    let toastTimer = null;
-
-    // util
-    function uid(){return Date.now().toString(36) + Math.random().toString(36).slice(2,8)}
-    function showToast(txt){
-      const t = q('#toast');
-      t.textContent = txt;
-      t.style.display = 'block';
-      if(toastTimer) clearTimeout(toastTimer);
-      toastTimer = setTimeout(()=> t.style.display='none', 1400);
-    }
-    function save(){
-      try{
-        localStorage.setItem(LS_KEY, JSON.stringify(data));
-        showToast('Guardado');
-      }catch(e){
-        alert('Error guardando localmente: ' + e.message);
-      }
-      render();
-    }
-    function load(){
-      try{
-        const raw = localStorage.getItem(LS_KEY);
-        if(!raw){ data = []; return; }
-        const obj = JSON.parse(raw);
-        if(Array.isArray(obj)) data = obj;
-        else if(obj && Array.isArray(obj.data)) data = obj.data;
-        else if(obj && Array.isArray(obj.items)) data = obj.items;
-        else data = [];
-      }catch(e){ data = []; }
-    }
-
-    function seedDemo(){
-      data = [
-        {id:uid(),name:'Jabón líquido',brand:'Lavex',qty:2,low:2,cat:'Limpieza',note:'Baño de abajo',barcode:'JBN-001',img:'',created:Date.now()},
-        {id:uid(),name:'Papel higiénico (pack)',brand:'Suave',qty:12,low:4,cat:'Baño',note:'Armario',barcode:'PH-12',img:'',created:Date.now()},
-        {id:uid(),name:'Leche UHT',brand:'LaFinca',qty:6,low:2,cat:'Alimentos',note:'Despensa',barcode:'MLK-1',img:'',created:Date.now()},
-        {id:uid(),name:'Cloro',brand:'BleachCo',qty:1,low:2,cat:'Limpieza',note:'Cuidado, concentrado',barcode:'CL-01',img:'',created:Date.now()}
-      ];
-      save();
-    }
-
-    // CRUD
-    function addItem(obj){ obj.id = uid(); obj.created = Date.now(); data.push(obj); save(); }
-    function updateItem(id, updates){ const i = data.findIndex(x=>x.id===id); if(i>-1){ data[i]=Object.assign({},data[i],updates); save(); } }
-    function deleteItem(id){ data = data.filter(x=>x.id!==id); save(); }
-
-    // escape
-    function escapeHtml(s){ if(s===undefined || s===null) return ''; return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[c]); }
-
-    // render list area: responsive cards on small screens, table on wide
-    function render(){
-      const query = $q.value.trim().toLowerCase();
-      const cat = $catFilter.value;
-      let items = data.slice();
-
-      // filters
-      if(cat) items = items.filter(i => (i.cat||'').toLowerCase()===cat.toLowerCase());
-      if(query) items = items.filter(i=> [i.name,i.brand,i.cat,i.note,i.barcode].join(' ').toLowerCase().includes(query));
-
-      // sort
-      const sort = $sortBy.value;
-      if(sort==='name') items.sort((a,b)=> (a.name||'').localeCompare(b.name||''));
-      if(sort==='qty_asc') items.sort((a,b)=> (Number(a.qty)||0)-(Number(b.qty)||0));
-      if(sort==='qty_desc') items.sort((a,b)=> (Number(b.qty)||0)-(Number(a.qty)||0));
-      if(sort==='lowstock') items.sort((a,b)=> ( (a.qty <= (a.low||0)) ? 0:1) - ((b.qty <= (b.low||0)) ? 0:1) || (a.name||'').localeCompare(b.name||''));
-
-      // build
-      if(window.innerWidth < 720){
-        // cards
-        const html = items.map(it=>{
-          const thumb = it.img ? `<div class="item-thumb"><img src="${escapeHtml(it.img)}" alt="${escapeHtml(it.name)}"></div>` : `<div class="item-thumb">${escapeHtml((it.name||'')[0]||'P')}</div>`;
-          return `
-            <div class="item-card" data-id="${it.id}">
-              <div class="item-head">
-                ${thumb}
-                <div style="flex:1">
-                  <div style="display:flex;justify-content:space-between;align-items:center">
-                    <div>
-                      <div style="font-weight:700">${escapeHtml(it.name)}</div>
-                      <div class="muted">${escapeHtml(it.brand||'')}${it.cat? ' · ' + escapeHtml(it.cat):''}</div>
-                    </div>
-                    <div class="chip">${Number(it.qty)||0} uds</div>
-                  </div>
-                  <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center">
-                    <div class="small muted" style="max-width:58%">${escapeHtml(it.note||'')}</div>
-                    <div style="display:flex;gap:6px">
-                      <button class="btn" data-action="dec" data-no-open="1">-</button>
-                      <button class="btn" data-action="inc" data-no-open="1">+</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          `;
-        }).join('');
-        $list.innerHTML = `<div class="card-grid">${html || '<div class="muted">Sin productos</div>'}</div>`;
-      } else {
-        // table: include thumb column
-        const rows = items.map(it=>`
-          <tr data-id="${it.id}">
-            <td style="width:42%">
-              <div style="display:flex;gap:10px;align-items:center">
-                ${ it.img ? `<div style="width:48px;height:48px;border-radius:8px;overflow:hidden"><img src="${escapeHtml(it.img)}" style="width:48px;height:48px;object-fit:cover"></div>`
-                         : `<div style="width:48px;height:48px;border-radius:8px;background:rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center">${escapeHtml((it.name||'')[0]||'P')}</div>` }
-                <div>
-                  <div style="font-weight:700">${escapeHtml(it.name)}</div>
-                  <div class="muted">${escapeHtml(it.brand||'')}${it.cat? ' · ' + escapeHtml(it.cat):''}</div>
-                </div>
-              </div>
-            </td>
-            <td style="width:16%">${escapeHtml(it.barcode||'')}</td>
-            <td style="width:16%"><div class="qty"><button class="btn" data-action="dec" data-no-open="1">-</button><div class="chip">${Number(it.qty)||0}</div><button class="btn" data-action="inc" data-no-open="1">+</button></div></td>
-            <td style="width:10%">${Number(it.qty) <= (it.low||0) ? '<span class="low">Bajo</span>':'OK'}</td>
-            <td style="width:16%"><button class="btn" data-action="edit">Editar</button></td>
-          </tr>
-        `).join('');
-        $list.innerHTML = `<table><thead><tr><th>Producto</th><th>Nota/Código</th><th>Cantidad</th><th>Estado</th><th></th></tr></thead><tbody>${rows || '<tr><td colspan="5" class="muted">Sin productos</td></tr>'}</tbody></table>`;
-      }
-
-      // stats
-      const cats = Array.from(new Set(data.map(x=>x.cat||'Sin categoría')));
-      $stats.textContent = `${data.length} artículos — ${cats.length} categorías`;
-      renderCategoryFilter();
-      drawChart();
-    }
-
-    function renderCategoryFilter(){
-      const cats = Array.from(new Set(data.map(x=>x.cat).filter(Boolean))).sort();
-      const html = ['<option value="">Filtrar categoría (todas)</option>'].concat(cats.map(c=>`<option>${escapeHtml(c)}</option>`)).join('');
-      $catFilter.innerHTML = html;
-    }
-
-    // chart: small canvas bar by categories (retina-aware)
-    function drawChart(){
-      const canvas = q('#catChart');
-      const ctx = canvas.getContext('2d');
-      // size for devicePixelRatio
-      const cssW = canvas.clientWidth;
-      const cssH = canvas.clientHeight;
-      const ratio = window.devicePixelRatio || 1;
-      canvas.width = Math.max(300, cssW * ratio);
-      canvas.height = Math.max(160, cssH * ratio);
-      ctx.setTransform(ratio,0,0,ratio,0,0);
-      ctx.clearRect(0,0,cssW,cssH);
-
-      const counts = {};
-      data.forEach(i=>{const k = i.cat || 'Sin categoría'; counts[k] = (counts[k]||0)+1});
-      const entries = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,6);
-      if(entries.length===0){ ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.font='14px Arial'; ctx.fillText('Sin datos', cssW/2-30, cssH/2); return }
-      const pad=10; const barH = (cssH - pad*2) / entries.length - 8;
-      const max = Math.max(...entries.map(e=>e[1]));
-      entries.forEach((e,i)=>{
-        const x = pad; const y = pad + i*(barH+8);
-        const bw = Math.max(4, (cssW - 140) * (e[1]/max));
-        // background
-        ctx.fillStyle = 'rgba(255,255,255,0.03)'; ctx.fillRect(x,y,cssW-80,barH);
-        // bar
-        ctx.fillStyle = (i%2===0) ? 'rgba(6,182,212,0.9)' : 'rgba(124,58,237,0.9)'; ctx.fillRect(x,y,bw,barH);
-        // text
-        ctx.fillStyle = 'rgba(230,238,246,0.92)'; ctx.font='12px Arial'; ctx.fillText(e[0] + ' ('+e[1]+')', x + bw + 8, y + barH/1.6);
+            <button class="btn btn-primary btn-sm" onclick="addOne(${it.id})">+1</button>
+            <button class="btn btn-gray btn-sm" onclick="openEdit(${it.id})">✏️</button>
+            <button class="btn btn-danger btn-sm" onclick="openSalida(${it.id})">Salida</button>
+            <button class="btn btn-gray btn-sm" onclick="delItem(${it.id})">🗑</button>
+          </div>`;
+        catDiv.appendChild(div);
       });
+      list.appendChild(catDiv);
     }
+  }
 
-    // interactions via delegation: handle + - and edit buttons & card clicks
-    $list.addEventListener('click', function(e){
-      const btn = e.target.closest('button');
-      const row = e.target.closest('[data-id]');
-      if(btn && row){
-        const id = row.getAttribute('data-id');
-        const action = btn.dataset.action;
-        if(action === 'dec'){ adjust(id, -1); return; }
-        if(action === 'inc'){ adjust(id, 1); return; }
-        if(action === 'edit'){ const it = data.find(x=>x.id===id); if(it) openModalFor(it); return; }
-      }
-      // if click not on button, but on row/card -> open edit
-      if(row && !btn) {
-        const id = row.getAttribute('data-id');
-        const it = data.find(x=>x.id===id);
-        if(it) openModalFor(it);
-      }
+  // Buscar
+  q("#search").addEventListener("input",e=>{
+    searchTerm=e.target.value.toLowerCase();
+    render();
+  });
+
+  // Agregar
+  function openAdd(){q("#modalAdd").style.display="flex";}
+  function closeAdd(){q("#modalAdd").style.display="none";}
+  function addItem(){
+    const name=q("#addName").value.trim();
+    const qty=parseFloat(q("#addQty").value);
+    const unit=q("#addUnit").value;const cat=q("#addCat").value;
+    if(!name||isNaN(qty)){alert("Datos inválidos");return;}
+    data.push({id:Date.now(),name,qty,unit,cat});
+    closeAdd();save();
+  }
+
+  // Eliminar
+  function delItem(id){if(confirm("¿Eliminar producto?")){data=data.filter(x=>x.id!==id);save();}}
+
+  // Sumar rápido
+  function addOne(id){const it=data.find(x=>x.id==id);if(it){it.qty+=1;save();}}
+
+  // Salida
+  const $modalSalida=q("#modalSalida"),$salidaTitle=q("#salidaTitle"),
+        $salidaInfo=q("#salidaInfo"),$salidaQty=q("#salidaQty"),
+        $confirmSalida=q("#confirmSalida"),$cancelSalida=q("#cancelSalida");
+  let salidaId=null;
+  function openSalida(id){
+    salidaId=id;const it=data.find(x=>x.id==id);if(!it)return;
+    $salidaTitle.textContent=`Dar salida: ${it.name}`;
+    $salidaInfo.textContent=`Stock disponible: ${it.qty.toFixed(2)} ${it.unit}`;
+    $salidaQty.value=1;$modalSalida.style.display="flex";}
+  $confirmSalida.onclick=()=>{
+    if(!salidaId)return;const it=data.find(x=>x.id==salidaId);if(!it)return;
+    const num=parseFloat($salidaQty.value);
+    if(isNaN(num)||num<=0){alert("Cantidad inválida");return;}
+    if(num>it.qty){alert("No puedes dar salida mayor al stock");return;}
+    it.qty=Math.max(0,it.qty-num);save();$modalSalida.style.display="none";};
+  $cancelSalida.onclick=()=>{$modalSalida.style.display="none";};
+
+  // Editar
+  const $modalEdit=q("#modalEdit"),$editName=q("#editName"),$editQty=q("#editQty"),
+        $editUnit=q("#editUnit"),$editCat=q("#editCat"),
+        $confirmEdit=q("#confirmEdit"),$cancelEdit=q("#cancelEdit");
+  let editId=null;
+  function openEdit(id){
+    editId=id;const it=data.find(x=>x.id==id);if(!it)return;
+    $editName.value=it.name;$editQty.value=it.qty;$editUnit.value=it.unit;$editCat.value=it.cat;
+    $modalEdit.style.display="flex";}
+  $confirmEdit.onclick=()=>{
+    if(!editId)return;const it=data.find(x=>x.id==editId);if(!it)return;
+    const name=$editName.value.trim();const qty=parseFloat($editQty.value);
+    const unit=$editUnit.value;const cat=$editCat.value;
+    if(!name||isNaN(qty)){alert("Datos inválidos");return;}
+    it.name=name;it.qty=qty;it.unit=unit;it.cat=cat;save();$modalEdit.style.display="none";};
+  $cancelEdit.onclick=()=>{$modalEdit.style.display="none";};
+
+  // Exportar a CSV
+  function exportCSV(){
+    if(data.length===0){alert("No hay productos para exportar");return;}
+    let csv="Nombre,Cantidad,Unidad,Categoría\n";
+    data.forEach(it=>{
+      csv+=`${it.name},${it.qty.toFixed(2)},${it.unit},${it.cat}\n`;
     });
+    const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
+    const url=URL.createObjectURL(blob);
+    const link=document.createElement("a");
+    link.setAttribute("href",url);
+    link.setAttribute("download","inventario.csv");
+    link.click();
+  }
 
-    // adjust helper
-    function adjust(id, delta){
-      const it = data.find(x=>x.id===id); if(!it) return;
-      it.qty = Math.max(0, (Number(it.qty)||0) + delta);
-      save();
-    }
-
-    // modal open / new / edit
-    function openModalFor(it){
-      editingId = it.id;
-      $modalTitle.textContent = 'Editar producto';
-      $name.value = it.name || '';
-      $brand.value = it.brand || '';
-      $qty.value = it.qty || 0;
-      $lowThreshold.value = it.low || 0;
-      $category.value = it.cat || '';
-      $barcode.value = it.barcode || '';
-      $note.value = it.note || '';
-      $image.value = it.img || '';
-      updatePreview(it.img || '');
-      $deleteBtn.style.display='inline-block';
-      $btnClearImage.style.display = (it.img ? 'inline-block' : 'none');
-      $modal.style.display='flex';
-    }
-    function openNew(){
-      editingId = null;
-      $modalTitle.textContent='Nuevo producto';
-      $name.value=''; $brand.value=''; $qty.value=1; $lowThreshold.value=2; $category.value=''; $barcode.value=''; $note.value=''; $image.value='';
-      updatePreview('');
-      $deleteBtn.style.display='none';
-      $btnClearImage.style.display='none';
-      $modal.style.display='flex';
-    }
-
-    // preview image
-    function updatePreview(src){
-      $imgPreview.innerHTML = '';
-      if(src){
-        const img = document.createElement('img');
-        img.src = src;
-        img.alt = 'Foto producto';
-        img.onload = ()=>{};
-        img.onerror = ()=>{ $imgPreview.textContent = 'N/A'; }
-        $imgPreview.appendChild(img);
-      } else {
-        $imgPreview.textContent = '';
-      }
-    }
-
-    // modal actions
-    $closeModal.addEventListener('click', ()=> $modal.style.display='none');
-    $modal.addEventListener('click', e=> { if(e.target === $modal) $modal.style.display='none'; });
-    window.addEventListener('keydown', e=>{ if(e.key === 'Escape') $modal.style.display='none'; });
-
-    q('#btnAdd').addEventListener('click', openNew);
-
-    $saveBtn.addEventListener('click', ()=>{
-      const name = $name.value.trim(); if(!name){ alert('El nombre es requerido'); return; }
-      const obj = {
-        name,
-        brand: $brand.value.trim(),
-        qty: Math.max(0, Number($qty.value)||0),
-        low: Math.max(0, Number($lowThreshold.value)||0),
-        cat: $category.value.trim(),
-        barcode: $barcode.value.trim(),
-        note: $note.value.trim(),
-        img: $image.value.trim()
-      };
-      if(editingId){ updateItem(editingId, obj); } else { addItem(obj); }
-      $modal.style.display='none';
-    });
-
-    $deleteBtn.addEventListener('click', ()=>{
-      if(!editingId) return;
-      if(!confirm('Eliminar este producto?')) return;
-      deleteItem(editingId);
-      $modal.style.display='none';
-    });
-
-    // image upload & preview
-    $btnPickImage.addEventListener('click', ()=> $imageFile.click());
-    $imageFile.addEventListener('change', e=>{
-      const f = e.target.files[0];
-      if(!f) return;
-      const reader = new FileReader();
-      reader.onload = ev=>{
-        $image.value = ev.target.result; // data URL
-        updatePreview($image.value);
-        $btnClearImage.style.display = 'inline-block';
-      };
-      reader.readAsDataURL(f);
-      e.target.value = '';
-    });
-
-    $btnClearImage.addEventListener('click', ()=>{
-      $image.value = '';
-      updatePreview('');
-      $btnClearImage.style.display = 'none';
-    });
-
-    // when user pastes/enters a URL in the image input, update the preview
-    $image.addEventListener('input', ()=> {
-      const v = $image.value.trim();
-      updatePreview(v);
-      $btnClearImage.style.display = v ? 'inline-block' : 'none';
-    });
-
-    // export / import
-    q('#btnExport').addEventListener('click', ()=>{
-      try{
-        const blob = new Blob([JSON.stringify({meta:{exported:Date.now()},data},null,2)],{type:'application/json'});
-        const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download = 'inventario_casa.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-      }catch(e){ alert('Error exportando: ' + e.message); }
-    });
-
-    q('#btnImport').addEventListener('click', ()=> q('#fileInput').click());
-    q('#fileInput').addEventListener('change', e=>{
-      const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev=>{
-        try{
-          const obj = JSON.parse(ev.target.result);
-          if(Array.isArray(obj)){ data = obj; }
-          else if(obj && Array.isArray(obj.data)){ data = obj.data; }
-          else throw new Error('Formato desconocido');
-          save(); showToast('Importado');
-        }catch(err){ alert('Error importando: ' + err.message) }
-      }; r.readAsText(f);
-      e.target.value = '';
-    });
-
-    // clear all
-    q('#btnClearAll').addEventListener('click', ()=>{ if(confirm('Borrar todo el inventario? Esta acción no se puede deshacer.')){ data=[]; save(); } });
-
-    // seed demo
-    q('#btnSeed').addEventListener('click', ()=>{ if(confirm('Cargar datos de ejemplo (reemplazará inventario actual)?')) seedDemo(); });
-
-    // search + filters
-    $q.addEventListener('input', debounce(render,200));
-    $catFilter.addEventListener('change', render);
-    $sortBy.addEventListener('change', render);
-
-    // keyboard shortcuts
-    window.addEventListener('keydown', (ev)=>{
-      if((ev.ctrlKey||ev.metaKey) && ev.key.toLowerCase()==='k'){ ev.preventDefault(); $q.focus(); }
-      if((ev.ctrlKey||ev.metaKey) && ev.key.toLowerCase()==='n'){ ev.preventDefault(); openNew(); }
-    });
-
-    // simple debounce
-    function debounce(fn,ms){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a),ms)} }
-
-    // startup
-    load(); render();
-
-    // expose adjust in case external code needs it
-    window.__inv = Object.assign(window.__inv || {}, { adjust });
-
-    // responsive re-render on resize (debounced)
-    window.addEventListener('resize', debounce(render,200));
-  })();
-  </script>
+  render();
+</script>
 </body>
 </html>
