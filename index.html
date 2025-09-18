@@ -1,181 +1,596 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Vitalis</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Inventario de Casa</title>
+  <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/10794/10794226.png" type="image/png" />
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    :root{
+      --bg:#0f1724;
+      --panel:#0b1220;
+      --card:#071427;
+      --muted:#9aa6b8;
+      --text:#e6eef6;
+      --accent:#06b6d4;
+      --accent-2:#7c3aed;
+      --success:#16a34a;
+      --danger:#ef4444;
+      --glass: rgba(255,255,255,0.03);
+      font-family: Inter, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     }
 
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      min-height: 100vh;
-      background: url('https://images.pexels.com/photos/19332101/pexels-photo-19332101/free-photo-of-mar-puesta-de-sol-oceano-silueta.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500') no-repeat center center fixed;
-      background-size: cover;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-      position: relative;
-    }
+    /* Reset & base */
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:
+      linear-gradient(180deg,#071421 0%, #071b29 60%);
+      color:var(--text);-webkit-font-smoothing:antialiased}
+    .app{max-width:1100px;margin:18px auto;padding:14px}
 
-    .container {
-      background-color: rgba(0, 0, 0, 0.6);
-      padding: 40px 30px;
-      border-radius: 20px;
-      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
-      color: white;
-      text-align: center;
-      width: 100%;
-      max-width: 450px;
-      backdrop-filter: blur(10px);
-    }
+    /* Header */
+    header{display:flex;gap:12px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+    .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-weight:700;color:#04131a;box-shadow:0 10px 30px rgba(12,18,30,0.6)}
+    h1{font-size:18px;margin:0}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
 
-    .container h1 {
-      font-size: 2.5rem;
-      margin-bottom: 30px;
-      text-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
-    }
+    /* Controls */
+    .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0}
+    .search{flex:1;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.02);padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
+    .search input{background:transparent;border:0;outline:none;color:inherit;flex:1;font-size:14px}
+    select,input[type=number]{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:7px 8px;border-radius:8px;color:inherit;font-size:14px}
 
-    .menu {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
+    .btn{background:var(--glass);border:1px solid rgba(255,255,255,0.04);padding:8px 12px;border-radius:10px;color:inherit;cursor:pointer;font-size:14px;touch-action:manipulation}
+    .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#08111a;font-weight:700;border:none}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06)}
 
-    .menu button {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 15px;
-      padding: 18px 30px;
-      font-size: 1.2rem;
-      border: none;
-      border-radius: 12px;
-      background: linear-gradient(to right, #00b4db, #0083b0);
-      color: white;
-      cursor: pointer;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-    }
+    /* Layout */
+    .layout{display:grid;grid-template-columns:1fr 340px;gap:12px}
+    .panel{background:var(--card);padding:12px;border-radius:12px;box-shadow:0 8px 24px rgba(2,6,23,0.6)}
 
-    .menu button:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-    }
+    /* List / table / cards */
+    table{width:100%;border-collapse:collapse;font-size:14px}
+    thead th{font-size:12px;color:var(--muted);text-align:left;padding:8px 6px}
+    tbody td{padding:10px 6px;border-top:1px dashed rgba(255,255,255,0.03);vertical-align:middle}
+    .qty{display:flex;gap:6px;align-items:center}
+    .chip{background:rgba(255,255,255,0.03);padding:6px 8px;border-radius:8px;font-size:13px}
 
-    .menu i {
-      font-size: 1.5rem;
-    }
+    .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+    .item-card{padding:12px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);border:1px solid rgba(255,255,255,0.03)}
+    .item-head{display:flex;gap:10px;align-items:center}
+    .item-thumb{width:56px;height:56px;border-radius:10px;background:rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center;font-weight:700;overflow:hidden}
+    .item-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+    .muted{color:var(--muted);font-size:13px}
+    .low{color:var(--danger);font-weight:700}
 
-    .info-btn {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      font-size: 1.4rem;
-      background-color: rgba(255, 255, 255, 0.2);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 45px;
-      height: 45px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      backdrop-filter: blur(5px);
-      z-index: 100;
-    }
+    /* Modal */
+    .modal{position:fixed;inset:0;background:linear-gradient(180deg, rgba(2,6,23,0.6), rgba(2,6,23,0.8));display:flex;align-items:center;justify-content:center;padding:12px;z-index:60}
+    .modal-card{width:760px;max-width:100%;background:#06121b;border-radius:12px;padding:16px;border:1px solid rgba(255,255,255,0.04)}
+    .form-row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+    .form-row input,.form-row select,textarea{flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit}
 
-    .info-btn:hover {
-      background-color: rgba(255, 255, 255, 0.4);
-    }
+    .img-preview{width:96px;height:96px;border-radius:8px;overflow:hidden;background:rgba(255,255,255,0.02);display:flex;align-items:center;justify-content:center}
+    .img-preview img{width:100%;height:100%;object-fit:cover;display:block}
 
-    .modal {
-      position: fixed;
-      bottom: 80px;
-      right: 20px;
-      background-color: rgba(0, 0, 0, 0.9);
-      color: white;
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.6);
-      max-width: 320px;
-      display: none;
-      z-index: 99;
-    }
+    .footer{margin-top:14px;color:var(--muted);font-size:13px}
+    .small{font-size:12px;color:var(--muted)}
+    .toast{position:fixed;right:18px;bottom:18px;background:#071428;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);box-shadow:0 10px 30px rgba(2,6,23,0.6)}
 
-    .modal p {
-      font-size: 0.95rem;
-      line-height: 1.4;
-    }
-
-    .modal button {
-      margin-top: 12px;
-      padding: 8px 15px;
-      background-color: #ffffff20;
-      border: none;
-      color: white;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    .modal button:hover {
-      background-color: #ffffff40;
-    }
-
-    @media (max-width: 480px) {
-      .container h1 {
-        font-size: 1.8rem;
-      }
-
-      .menu button {
-        font-size: 1rem;
-        padding: 15px 20px;
-      }
-
-      .modal {
-        bottom: 100px;
-        right: 10px;
-        left: 10px;
-        max-width: none;
-      }
+    /* Mobile tweaks */
+    @media (max-width:920px){
+      .layout{grid-template-columns:1fr}
+      .controls{flex-direction:column;align-items:stretch}
+      .modal-card{width:100%;padding:12px}
+      .item-thumb{width:48px;height:48px}
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Vitalis</h1>
-    <div class="menu">
-      <button onclick="location.href='ejercicios.html'">
-        <i class="fas fa-smile"></i>
-        Ejercicios Faciales
-      </button>
-      <button onclick="location.href='masaje.html'">
-        <i class="fas fa-hands"></i>
-        Masaje Facial
-      </button>
+  <div class="app">
+    <header>
+      <div class="logo">IC</div>
+      <div>
+        <h1>Inventario de Casa</h1>
+        <p class="lead">Administra productos del hogar. Guardado local (localStorage). Fotos locales o por URL.</p>
+      </div>
+    </header>
+
+    <div class="controls">
+      <div class="search" role="search" aria-label="Buscar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="1.6"></circle></svg>
+        <input id="q" placeholder="Buscar por nombre, categoría o nota..." />
+      </div>
+
+      <select id="categoryFilter" aria-label="Filtrar categoría">
+        <option value="">Filtrar categoría (todas)</option>
+      </select>
+
+      <select id="sortBy" aria-label="Ordenar">
+        <option value="name">Ordenar: Nombre</option>
+        <option value="qty_asc">Cantidad (menor primero)</option>
+        <option value="qty_desc">Cantidad (mayor primero)</option>
+        <option value="lowstock">Priorizar bajo stock</option>
+      </select>
+
+      <button class="btn primary" id="btnAdd">+ Nuevo producto</button>
+      <button class="btn" id="btnExport">Exportar</button>
+      <button class="btn" id="btnImport">Importar</button>
+    </div>
+
+    <div class="layout">
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div>
+            <div class="small">Productos</div>
+            <div id="stats" style="font-weight:700;font-size:18px">0 artículos — 0 categorías</div>
+          </div>
+          <div class="small muted">Auto-guardado local · siempre privado</div>
+        </div>
+
+        <div id="listArea"></div>
+
+        <div class="footer">
+          Consejo: Toca un producto para editar. Usa +/- para ajustar cantidades. Exporta un backup con "Exportar".
+        </div>
+      </div>
+
+      <aside class="panel">
+        <div style="margin-bottom:12px">
+          <div class="small">Visión rápida</div>
+          <canvas id="catChart" width="300" height="160" style="width:100%;height:160px;background:transparent;margin-top:8px;border-radius:8px"></canvas>
+        </div>
+
+        <div style="margin-top:12px">
+          <div class="small">Acciones</div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button class="btn ghost" id="btnClearAll">Limpiar todo</button>
+            <button class="btn ghost" id="btnSeed">Poner muestra</button>
+          </div>
+        </div>
+
+        <div style="margin-top:12px">
+          <div class="small">Importante</div>
+          <div class="muted" style="margin-top:8px">Este inventario se guarda en tu navegador. Si borras los datos del navegador, perderás la data.</div>
+        </div>
+      </aside>
     </div>
   </div>
 
-  <!-- Botón de información -->
-  <button class="info-btn" onclick="toggleModal()">?</button>
+  <!-- Modal: Form -->
+  <div id="modal" class="modal" style="display:none">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <strong id="modalTitle">Nuevo producto</strong>
+        <button class="btn" id="closeModal">Cerrar</button>
+      </div>
 
-  <!-- Modal de información -->
-  <div class="modal" id="infoModal">
-    <p>Creado con esmero por Karla Rivera y Manuel Rojas, pensando en quienes enfrentan este camino con valentía. Junio de 2025.</p>
-    <button onclick="toggleModal()">Cerrar</button>
+      <div>
+        <div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap">
+          <div style="flex:1;min-width:220px">
+            <div class="form-row">
+              <input id="name" placeholder="Nombre del producto *" />
+              <input id="brand" placeholder="Marca (opcional)" />
+            </div>
+            <div class="form-row">
+              <input id="qty" type="number" min="0" value="1" />
+              <input id="lowThreshold" type="number" min="0" value="2" title="Bajo stock cuando <= este número" />
+              <select id="category">
+                <option value="">Categoría</option>
+                <option>Alimentos</option>
+                <option>Limpieza</option>
+                <option>Baño</option>
+                <option>Hogar</option>
+                <option>Otros</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <input id="barcode" placeholder="Código/Nota corta" />
+              <input id="image" placeholder="URL imagen (opcional)" />
+            </div>
+
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+              <input id="imageFile" type="file" accept="image/*" style="display:none" />
+              <button class="btn" id="btnPickImage">Subir imagen</button>
+              <button class="btn" id="btnClearImage" title="Quitar imagen" style="display:none">Quitar imagen</button>
+              <div class="small muted">Puedes pegar una URL o subir una foto desde tu celular.</div>
+            </div>
+
+            <div style="margin-bottom:8px">
+              <textarea id="note" placeholder="Notas largas (ej. fecha de compra, ubicación)" rows="3" style="width:100%;border-radius:8px;padding:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit"></textarea>
+            </div>
+          </div>
+
+          <div style="width:120px;min-width:96px;display:flex;flex-direction:column;gap:8px;align-items:center">
+            <div class="img-preview" id="imgPreview" title="Previsualización imagen">
+              <!-- imagen va aquí -->
+            </div>
+            <div class="small muted" style="text-align:center">Previsualización</div>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+          <button class="btn" id="deleteBtn" style="display:none;background:rgba(255,0,0,0.06);border-color:rgba(255,0,0,0.12);color:var(--danger)">Eliminar</button>
+          <button class="btn primary" id="saveBtn">Guardar</button>
+        </div>
+      </div>
+    </div>
   </div>
 
+  <div id="toast" class="toast" style="display:none">Guardado</div>
+
+  <input id="fileInput" type="file" accept="application/json" style="display:none" />
+
   <script>
-    function toggleModal() {
-      const modal = document.getElementById('infoModal');
-      modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
+  (function(){
+    const LS_KEY = 'household_inventory_v1'; // mantiene compatibilidad con datos previos
+    const q = sel => document.querySelector(sel);
+    const $list = q('#listArea');
+    const $stats = q('#stats');
+    const $q = q('#q');
+    const $catFilter = q('#categoryFilter');
+    const $sortBy = q('#sortBy');
+
+    const $modal = q('#modal');
+    const $modalTitle = q('#modalTitle');
+    const $deleteBtn = q('#deleteBtn');
+    const $saveBtn = q('#saveBtn');
+    const $closeModal = q('#closeModal');
+
+    const $name = q('#name');
+    const $brand = q('#brand');
+    const $qty = q('#qty');
+    const $lowThreshold = q('#lowThreshold');
+    const $category = q('#category');
+    const $barcode = q('#barcode');
+    const $note = q('#note');
+    const $image = q('#image');
+    const $imgPreview = q('#imgPreview');
+    const $imageFile = q('#imageFile');
+    const $btnPickImage = q('#btnPickImage');
+    const $btnClearImage = q('#btnClearImage');
+
+    let data = [];
+    let editingId = null;
+    let toastTimer = null;
+
+    // util
+    function uid(){return Date.now().toString(36) + Math.random().toString(36).slice(2,8)}
+    function showToast(txt){
+      const t = q('#toast');
+      t.textContent = txt;
+      t.style.display = 'block';
+      if(toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(()=> t.style.display='none', 1400);
     }
+    function save(){
+      try{
+        localStorage.setItem(LS_KEY, JSON.stringify(data));
+        showToast('Guardado');
+      }catch(e){
+        alert('Error guardando localmente: ' + e.message);
+      }
+      render();
+    }
+    function load(){
+      try{
+        const raw = localStorage.getItem(LS_KEY);
+        if(!raw){ data = []; return; }
+        const obj = JSON.parse(raw);
+        if(Array.isArray(obj)) data = obj;
+        else if(obj && Array.isArray(obj.data)) data = obj.data;
+        else if(obj && Array.isArray(obj.items)) data = obj.items;
+        else data = [];
+      }catch(e){ data = []; }
+    }
+
+    function seedDemo(){
+      data = [
+        {id:uid(),name:'Jabón líquido',brand:'Lavex',qty:2,low:2,cat:'Limpieza',note:'Baño de abajo',barcode:'JBN-001',img:'',created:Date.now()},
+        {id:uid(),name:'Papel higiénico (pack)',brand:'Suave',qty:12,low:4,cat:'Baño',note:'Armario',barcode:'PH-12',img:'',created:Date.now()},
+        {id:uid(),name:'Leche UHT',brand:'LaFinca',qty:6,low:2,cat:'Alimentos',note:'Despensa',barcode:'MLK-1',img:'',created:Date.now()},
+        {id:uid(),name:'Cloro',brand:'BleachCo',qty:1,low:2,cat:'Limpieza',note:'Cuidado, concentrado',barcode:'CL-01',img:'',created:Date.now()}
+      ];
+      save();
+    }
+
+    // CRUD
+    function addItem(obj){ obj.id = uid(); obj.created = Date.now(); data.push(obj); save(); }
+    function updateItem(id, updates){ const i = data.findIndex(x=>x.id===id); if(i>-1){ data[i]=Object.assign({},data[i],updates); save(); } }
+    function deleteItem(id){ data = data.filter(x=>x.id!==id); save(); }
+
+    // escape
+    function escapeHtml(s){ if(s===undefined || s===null) return ''; return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[c]); }
+
+    // render list area: responsive cards on small screens, table on wide
+    function render(){
+      const query = $q.value.trim().toLowerCase();
+      const cat = $catFilter.value;
+      let items = data.slice();
+
+      // filters
+      if(cat) items = items.filter(i => (i.cat||'').toLowerCase()===cat.toLowerCase());
+      if(query) items = items.filter(i=> [i.name,i.brand,i.cat,i.note,i.barcode].join(' ').toLowerCase().includes(query));
+
+      // sort
+      const sort = $sortBy.value;
+      if(sort==='name') items.sort((a,b)=> (a.name||'').localeCompare(b.name||''));
+      if(sort==='qty_asc') items.sort((a,b)=> (Number(a.qty)||0)-(Number(b.qty)||0));
+      if(sort==='qty_desc') items.sort((a,b)=> (Number(b.qty)||0)-(Number(a.qty)||0));
+      if(sort==='lowstock') items.sort((a,b)=> ( (a.qty <= (a.low||0)) ? 0:1) - ((b.qty <= (b.low||0)) ? 0:1) || (a.name||'').localeCompare(b.name||''));
+
+      // build
+      if(window.innerWidth < 720){
+        // cards
+        const html = items.map(it=>{
+          const thumb = it.img ? `<div class="item-thumb"><img src="${escapeHtml(it.img)}" alt="${escapeHtml(it.name)}"></div>` : `<div class="item-thumb">${escapeHtml((it.name||'')[0]||'P')}</div>`;
+          return `
+            <div class="item-card" data-id="${it.id}">
+              <div class="item-head">
+                ${thumb}
+                <div style="flex:1">
+                  <div style="display:flex;justify-content:space-between;align-items:center">
+                    <div>
+                      <div style="font-weight:700">${escapeHtml(it.name)}</div>
+                      <div class="muted">${escapeHtml(it.brand||'')}${it.cat? ' · ' + escapeHtml(it.cat):''}</div>
+                    </div>
+                    <div class="chip">${Number(it.qty)||0} uds</div>
+                  </div>
+                  <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center">
+                    <div class="small muted" style="max-width:58%">${escapeHtml(it.note||'')}</div>
+                    <div style="display:flex;gap:6px">
+                      <button class="btn" data-action="dec" data-no-open="1">-</button>
+                      <button class="btn" data-action="inc" data-no-open="1">+</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+        $list.innerHTML = `<div class="card-grid">${html || '<div class="muted">Sin productos</div>'}</div>`;
+      } else {
+        // table: include thumb column
+        const rows = items.map(it=>`
+          <tr data-id="${it.id}">
+            <td style="width:42%">
+              <div style="display:flex;gap:10px;align-items:center">
+                ${ it.img ? `<div style="width:48px;height:48px;border-radius:8px;overflow:hidden"><img src="${escapeHtml(it.img)}" style="width:48px;height:48px;object-fit:cover"></div>`
+                         : `<div style="width:48px;height:48px;border-radius:8px;background:rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center">${escapeHtml((it.name||'')[0]||'P')}</div>` }
+                <div>
+                  <div style="font-weight:700">${escapeHtml(it.name)}</div>
+                  <div class="muted">${escapeHtml(it.brand||'')}${it.cat? ' · ' + escapeHtml(it.cat):''}</div>
+                </div>
+              </div>
+            </td>
+            <td style="width:16%">${escapeHtml(it.barcode||'')}</td>
+            <td style="width:16%"><div class="qty"><button class="btn" data-action="dec" data-no-open="1">-</button><div class="chip">${Number(it.qty)||0}</div><button class="btn" data-action="inc" data-no-open="1">+</button></div></td>
+            <td style="width:10%">${Number(it.qty) <= (it.low||0) ? '<span class="low">Bajo</span>':'OK'}</td>
+            <td style="width:16%"><button class="btn" data-action="edit">Editar</button></td>
+          </tr>
+        `).join('');
+        $list.innerHTML = `<table><thead><tr><th>Producto</th><th>Nota/Código</th><th>Cantidad</th><th>Estado</th><th></th></tr></thead><tbody>${rows || '<tr><td colspan="5" class="muted">Sin productos</td></tr>'}</tbody></table>`;
+      }
+
+      // stats
+      const cats = Array.from(new Set(data.map(x=>x.cat||'Sin categoría')));
+      $stats.textContent = `${data.length} artículos — ${cats.length} categorías`;
+      renderCategoryFilter();
+      drawChart();
+    }
+
+    function renderCategoryFilter(){
+      const cats = Array.from(new Set(data.map(x=>x.cat).filter(Boolean))).sort();
+      const html = ['<option value="">Filtrar categoría (todas)</option>'].concat(cats.map(c=>`<option>${escapeHtml(c)}</option>`)).join('');
+      $catFilter.innerHTML = html;
+    }
+
+    // chart: small canvas bar by categories (retina-aware)
+    function drawChart(){
+      const canvas = q('#catChart');
+      const ctx = canvas.getContext('2d');
+      // size for devicePixelRatio
+      const cssW = canvas.clientWidth;
+      const cssH = canvas.clientHeight;
+      const ratio = window.devicePixelRatio || 1;
+      canvas.width = Math.max(300, cssW * ratio);
+      canvas.height = Math.max(160, cssH * ratio);
+      ctx.setTransform(ratio,0,0,ratio,0,0);
+      ctx.clearRect(0,0,cssW,cssH);
+
+      const counts = {};
+      data.forEach(i=>{const k = i.cat || 'Sin categoría'; counts[k] = (counts[k]||0)+1});
+      const entries = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,6);
+      if(entries.length===0){ ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.font='14px Arial'; ctx.fillText('Sin datos', cssW/2-30, cssH/2); return }
+      const pad=10; const barH = (cssH - pad*2) / entries.length - 8;
+      const max = Math.max(...entries.map(e=>e[1]));
+      entries.forEach((e,i)=>{
+        const x = pad; const y = pad + i*(barH+8);
+        const bw = Math.max(4, (cssW - 140) * (e[1]/max));
+        // background
+        ctx.fillStyle = 'rgba(255,255,255,0.03)'; ctx.fillRect(x,y,cssW-80,barH);
+        // bar
+        ctx.fillStyle = (i%2===0) ? 'rgba(6,182,212,0.9)' : 'rgba(124,58,237,0.9)'; ctx.fillRect(x,y,bw,barH);
+        // text
+        ctx.fillStyle = 'rgba(230,238,246,0.92)'; ctx.font='12px Arial'; ctx.fillText(e[0] + ' ('+e[1]+')', x + bw + 8, y + barH/1.6);
+      });
+    }
+
+    // interactions via delegation: handle + - and edit buttons & card clicks
+    $list.addEventListener('click', function(e){
+      const btn = e.target.closest('button');
+      const row = e.target.closest('[data-id]');
+      if(btn && row){
+        const id = row.getAttribute('data-id');
+        const action = btn.dataset.action;
+        if(action === 'dec'){ adjust(id, -1); return; }
+        if(action === 'inc'){ adjust(id, 1); return; }
+        if(action === 'edit'){ const it = data.find(x=>x.id===id); if(it) openModalFor(it); return; }
+      }
+      // if click not on button, but on row/card -> open edit
+      if(row && !btn) {
+        const id = row.getAttribute('data-id');
+        const it = data.find(x=>x.id===id);
+        if(it) openModalFor(it);
+      }
+    });
+
+    // adjust helper
+    function adjust(id, delta){
+      const it = data.find(x=>x.id===id); if(!it) return;
+      it.qty = Math.max(0, (Number(it.qty)||0) + delta);
+      save();
+    }
+
+    // modal open / new / edit
+    function openModalFor(it){
+      editingId = it.id;
+      $modalTitle.textContent = 'Editar producto';
+      $name.value = it.name || '';
+      $brand.value = it.brand || '';
+      $qty.value = it.qty || 0;
+      $lowThreshold.value = it.low || 0;
+      $category.value = it.cat || '';
+      $barcode.value = it.barcode || '';
+      $note.value = it.note || '';
+      $image.value = it.img || '';
+      updatePreview(it.img || '');
+      $deleteBtn.style.display='inline-block';
+      $btnClearImage.style.display = (it.img ? 'inline-block' : 'none');
+      $modal.style.display='flex';
+    }
+    function openNew(){
+      editingId = null;
+      $modalTitle.textContent='Nuevo producto';
+      $name.value=''; $brand.value=''; $qty.value=1; $lowThreshold.value=2; $category.value=''; $barcode.value=''; $note.value=''; $image.value='';
+      updatePreview('');
+      $deleteBtn.style.display='none';
+      $btnClearImage.style.display='none';
+      $modal.style.display='flex';
+    }
+
+    // preview image
+    function updatePreview(src){
+      $imgPreview.innerHTML = '';
+      if(src){
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = 'Foto producto';
+        img.onload = ()=>{};
+        img.onerror = ()=>{ $imgPreview.textContent = 'N/A'; }
+        $imgPreview.appendChild(img);
+      } else {
+        $imgPreview.textContent = '';
+      }
+    }
+
+    // modal actions
+    $closeModal.addEventListener('click', ()=> $modal.style.display='none');
+    $modal.addEventListener('click', e=> { if(e.target === $modal) $modal.style.display='none'; });
+    window.addEventListener('keydown', e=>{ if(e.key === 'Escape') $modal.style.display='none'; });
+
+    q('#btnAdd').addEventListener('click', openNew);
+
+    $saveBtn.addEventListener('click', ()=>{
+      const name = $name.value.trim(); if(!name){ alert('El nombre es requerido'); return; }
+      const obj = {
+        name,
+        brand: $brand.value.trim(),
+        qty: Math.max(0, Number($qty.value)||0),
+        low: Math.max(0, Number($lowThreshold.value)||0),
+        cat: $category.value.trim(),
+        barcode: $barcode.value.trim(),
+        note: $note.value.trim(),
+        img: $image.value.trim()
+      };
+      if(editingId){ updateItem(editingId, obj); } else { addItem(obj); }
+      $modal.style.display='none';
+    });
+
+    $deleteBtn.addEventListener('click', ()=>{
+      if(!editingId) return;
+      if(!confirm('Eliminar este producto?')) return;
+      deleteItem(editingId);
+      $modal.style.display='none';
+    });
+
+    // image upload & preview
+    $btnPickImage.addEventListener('click', ()=> $imageFile.click());
+    $imageFile.addEventListener('change', e=>{
+      const f = e.target.files[0];
+      if(!f) return;
+      const reader = new FileReader();
+      reader.onload = ev=>{
+        $image.value = ev.target.result; // data URL
+        updatePreview($image.value);
+        $btnClearImage.style.display = 'inline-block';
+      };
+      reader.readAsDataURL(f);
+      e.target.value = '';
+    });
+
+    $btnClearImage.addEventListener('click', ()=>{
+      $image.value = '';
+      updatePreview('');
+      $btnClearImage.style.display = 'none';
+    });
+
+    // when user pastes/enters a URL in the image input, update the preview
+    $image.addEventListener('input', ()=> {
+      const v = $image.value.trim();
+      updatePreview(v);
+      $btnClearImage.style.display = v ? 'inline-block' : 'none';
+    });
+
+    // export / import
+    q('#btnExport').addEventListener('click', ()=>{
+      try{
+        const blob = new Blob([JSON.stringify({meta:{exported:Date.now()},data},null,2)],{type:'application/json'});
+        const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download = 'inventario_casa.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+      }catch(e){ alert('Error exportando: ' + e.message); }
+    });
+
+    q('#btnImport').addEventListener('click', ()=> q('#fileInput').click());
+    q('#fileInput').addEventListener('change', e=>{
+      const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev=>{
+        try{
+          const obj = JSON.parse(ev.target.result);
+          if(Array.isArray(obj)){ data = obj; }
+          else if(obj && Array.isArray(obj.data)){ data = obj.data; }
+          else throw new Error('Formato desconocido');
+          save(); showToast('Importado');
+        }catch(err){ alert('Error importando: ' + err.message) }
+      }; r.readAsText(f);
+      e.target.value = '';
+    });
+
+    // clear all
+    q('#btnClearAll').addEventListener('click', ()=>{ if(confirm('Borrar todo el inventario? Esta acción no se puede deshacer.')){ data=[]; save(); } });
+
+    // seed demo
+    q('#btnSeed').addEventListener('click', ()=>{ if(confirm('Cargar datos de ejemplo (reemplazará inventario actual)?')) seedDemo(); });
+
+    // search + filters
+    $q.addEventListener('input', debounce(render,200));
+    $catFilter.addEventListener('change', render);
+    $sortBy.addEventListener('change', render);
+
+    // keyboard shortcuts
+    window.addEventListener('keydown', (ev)=>{
+      if((ev.ctrlKey||ev.metaKey) && ev.key.toLowerCase()==='k'){ ev.preventDefault(); $q.focus(); }
+      if((ev.ctrlKey||ev.metaKey) && ev.key.toLowerCase()==='n'){ ev.preventDefault(); openNew(); }
+    });
+
+    // simple debounce
+    function debounce(fn,ms){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a),ms)} }
+
+    // startup
+    load(); render();
+
+    // expose adjust in case external code needs it
+    window.__inv = Object.assign(window.__inv || {}, { adjust });
+
+    // responsive re-render on resize (debounced)
+    window.addEventListener('resize', debounce(render,200));
+  })();
   </script>
 </body>
 </html>
