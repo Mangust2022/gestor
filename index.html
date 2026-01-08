@@ -8,7 +8,7 @@
     body{font-family:'Segoe UI',sans-serif;margin:0;padding:0;background:#f1f5f9;color:#333;}
     header{background:linear-gradient(135deg,#1e3a8a,#2563eb);color:white;
       padding:18px;text-align:center;font-size:1.4em;font-weight:bold;
-      box-shadow:0 2px 8px rgba(0,0,0,.2);letter-spacing:0.5px;}
+      box-shadow:0 2px 8px rgba(0,0,0,.2);}
     main{padding:15px;}
 
     .btn{padding:10px 14px;border:none;border-radius:8px;cursor:pointer;
@@ -30,227 +30,168 @@
     .low{color:#dc2626;font-weight:bold;font-size:13px;}
 
     .cat-title{font-weight:bold;font-size:18px;margin:20px 0 10px;padding:8px 12px;
-      background:#e0e7ff;color:#1e3a8a;border-radius:8px;
-      box-shadow:inset 0 1px 3px rgba(0,0,0,.1);}
+      background:#e0e7ff;color:#1e3a8a;border-radius:8px;}
     .resumen{font-size:14px;color:#444;margin:5px 0 15px 5px;}
 
     .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;
       background:rgba(0,0,0,.5);justify-content:center;align-items:center;z-index:1000;}
-    .modal-card{background:#fff;border-radius:12px;padding:20px;width:90%;max-width:420px;
-      box-shadow:0 3px 10px rgba(0,0,0,.25);animation:fadeIn .2s ease-out;}
-    @keyframes fadeIn{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+    .modal-card{background:#fff;border-radius:12px;padding:20px;width:90%;max-width:420px;}
     .form-row{margin-bottom:12px;}
     input,select{width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;font-size:15px;}
 
     #topBar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:15px;}
     #search{flex:1;padding:10px;font-size:15px;border-radius:8px;border:1px solid #ccc;}
-
-    @media(min-width:700px){.card{flex-wrap:nowrap;}}
   </style>
 </head>
+
 <body>
-  <header>📦 Inventario de Casa</header>
-  <main>
-    <div id="topBar">
-      <input id="search" placeholder="Buscar por nombre o categoría...">
-      <button class="btn btn-primary" onclick="openAdd()">+ Agregar</button>
-      <button class="btn btn-gray" onclick="exportCSV()">📥 Exportar</button>
-    </div>
-    <div id="list"></div>
-  </main>
+<header>📦 Inventario de Casa</header>
 
-  <!-- Modal Agregar -->
-  <div id="modalAdd" class="modal">
-    <div class="modal-card">
-      <h2>Agregar Producto</h2>
-      <div class="form-row"><input id="addName" placeholder="Nombre"></div>
-      <div class="form-row"><input id="addQty" type="number" step="0.01" placeholder="Cantidad"></div>
-      <div class="form-row"><input id="addMin" type="number" step="0.01" placeholder="Stock mínimo"></div>
-      <div class="form-row">
-        <select id="addUnit">
-          <option value="pieza">Pieza</option><option value="kg">Kg</option>
-          <option value="g">Gramos</option><option value="L">Litro</option><option value="ml">Mililitro</option>
-        </select>
-      </div>
-      <div class="form-row">
-        <select id="addCat">
-          <option value="General">General</option><option value="Cocina">Cocina</option>
-          <option value="Limpieza">Limpieza</option><option value="Comida">Comida</option>
-          <option value="Baño">Baño</option>
-        </select>
-      </div>
-      <div class="form-row" style="display:flex;gap:8px">
-        <button class="btn btn-primary" style="flex:1" onclick="addItem()">Guardar</button>
-        <button class="btn btn-gray" style="flex:1" onclick="closeAdd()">Cancelar</button>
-      </div>
+<main>
+  <div id="topBar">
+    <input id="search" placeholder="Buscar por nombre o categoría...">
+    <button class="btn btn-primary" onclick="openAdd()">+ Agregar</button>
+    <button class="btn btn-gray" onclick="exportCSV()">📥 Exportar</button>
+    <button class="btn btn-danger" onclick="goToCompra()">📝 Lista de compra</button>
+  </div>
+  <div id="list"></div>
+</main>
+
+<!-- Modal Agregar -->
+<div id="modalAdd" class="modal">
+  <div class="modal-card">
+    <h2>Agregar Producto</h2>
+    <div class="form-row"><input id="addName" placeholder="Nombre"></div>
+    <div class="form-row"><input id="addQty" type="number" step="0.01" placeholder="Cantidad"></div>
+    <div class="form-row"><input id="addMin" type="number" step="0.01" placeholder="Stock mínimo"></div>
+    <div class="form-row">
+      <select id="addUnit">
+        <option value="pieza">Pieza</option>
+        <option value="kg">Kg</option>
+        <option value="g">Gramos</option>
+        <option value="L">Litro</option>
+        <option value="ml">Mililitro</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <select id="addCat">
+        <option>General</option>
+        <option>Cocina</option>
+        <option>Limpieza</option>
+        <option>Comida</option>
+        <option>Baño</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-primary" style="flex:1" onclick="addItem()">Guardar</button>
+      <button class="btn btn-gray" style="flex:1" onclick="closeAdd()">Cancelar</button>
     </div>
   </div>
-
-  <!-- Modal Salida -->
-  <div id="modalSalida" class="modal">
-    <div class="modal-card">
-      <h2 id="salidaTitle">Dar salida</h2>
-      <p id="salidaInfo" style="font-size:14px;color:#555;margin-bottom:10px"></p>
-      <div class="form-row">
-        <input id="salidaQty" type="number" step="0.01" min="0" value="1" placeholder="Cantidad a dar de salida" />
-      </div>
-      <div style="display:flex;gap:8px">
-        <button id="confirmSalida" class="btn btn-danger" style="flex:1">Confirmar</button>
-        <button id="cancelSalida" class="btn btn-gray" style="flex:1">Cancelar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal Editar -->
-  <div id="modalEdit" class="modal">
-    <div class="modal-card">
-      <h2>Editar Producto</h2>
-      <div class="form-row"><input id="editName" placeholder="Nombre"></div>
-      <div class="form-row"><input id="editQty" type="number" step="0.01" placeholder="Cantidad"></div>
-      <div class="form-row"><input id="editMin" type="number" step="0.01" placeholder="Stock mínimo"></div>
-      <div class="form-row">
-        <select id="editUnit">
-          <option value="pieza">Pieza</option><option value="kg">Kg</option>
-          <option value="g">Gramos</option><option value="L">Litro</option><option value="ml">Mililitro</option>
-        </select>
-      </div>
-      <div class="form-row">
-        <select id="editCat">
-          <option value="General">General</option><option value="Cocina">Cocina</option>
-          <option value="Limpieza">Limpieza</option><option value="Comida">Comida</option>
-          <option value="Baño">Baño</option>
-        </select>
-      </div>
-      <div style="display:flex;gap:8px">
-        <button id="confirmEdit" class="btn btn-primary" style="flex:1">Guardar</button>
-        <button id="cancelEdit" class="btn btn-gray" style="flex:1">Cancelar</button>
-      </div>
-    </div>
-  </div>
+</div>
 
 <script>
-  const q=s=>document.querySelector(s);const list=q("#list");
-  let data=JSON.parse(localStorage.getItem("invCasa")||"[]");
-  let searchTerm="";
+const q=s=>document.querySelector(s);
+const list=q("#list");
+let data=JSON.parse(localStorage.getItem("invCasa")||"[]");
+let searchTerm="";
 
-  function save(){localStorage.setItem("invCasa",JSON.stringify(data));render();}
+function goToCompra(){
+  window.location.href="compra.html";
+}
 
-  function render(){
-    list.innerHTML="";
-    let filtered=data.filter(it=>{
-      if(!searchTerm)return true;
-      return it.name.toLowerCase().includes(searchTerm) || it.cat.toLowerCase().includes(searchTerm);
-    });
-    if(filtered.length===0){list.innerHTML="<p style='color:#666'>No hay productos</p>";return;}
-    const grupos={};
-    filtered.forEach(it=>{if(!grupos[it.cat])grupos[it.cat]=[];grupos[it.cat].push(it);});
-    for(const cat in grupos){
-      const items=grupos[cat];
-      let total=items.reduce((a,b)=>a+b.qty,0);
-      const catDiv=document.createElement("div");
-      catDiv.innerHTML=`<div class="cat-title">${cat}</div>
-        <div class="resumen">Productos: ${items.length} | Total: ${total.toFixed(2)}</div>`;
-      items.forEach(it=>{
-        const div=document.createElement("div");
-        div.className="card";
-        const lowStock = it.min && it.qty < it.min ? `<div class="low">⚠ Stock bajo (mínimo: ${it.min})</div>` : "";
-        div.innerHTML=`
-          <div class="info">
-            <div class="name">${it.name}</div>
-            <div class="details">${it.qty.toFixed(2)} ${it.unit}</div>
-            ${lowStock}
-          </div>
-          <div>
-            <button class="btn btn-primary btn-sm" onclick="addOne(${it.id})">+1</button>
-            <button class="btn btn-gray btn-sm" onclick="openEdit(${it.id})">✏️</button>
-            <button class="btn btn-danger btn-sm" onclick="openSalida(${it.id})">Salida</button>
-            <button class="btn btn-gray btn-sm" onclick="delItem(${it.id})">🗑</button>
-          </div>`;
-        catDiv.appendChild(div);
-      });
-      list.appendChild(catDiv);
-    }
-  }
+function save(){
+  localStorage.setItem("invCasa",JSON.stringify(data));
+  render();
+}
 
-  // Buscar
-  q("#search").addEventListener("input",e=>{
-    searchTerm=e.target.value.toLowerCase();
-    render();
+function render(){
+  list.innerHTML="";
+  let filtered=data.filter(it=>{
+    if(!searchTerm)return true;
+    return it.name.toLowerCase().includes(searchTerm) ||
+           it.cat.toLowerCase().includes(searchTerm);
   });
 
-  // Agregar
-  function openAdd(){q("#modalAdd").style.display="flex";}
-  function closeAdd(){q("#modalAdd").style.display="none";}
-  function addItem(){
-    const name=q("#addName").value.trim();
-    const qty=parseFloat(q("#addQty").value);
-    const min=parseFloat(q("#addMin").value)||0;
-    const unit=q("#addUnit").value;const cat=q("#addCat").value;
-    if(!name||isNaN(qty)){alert("Datos inválidos");return;}
-    data.push({id:Date.now(),name,qty,unit,cat,min});
-    closeAdd();save();
+  if(filtered.length===0){
+    list.innerHTML="<p>No hay productos</p>";
+    return;
   }
 
-  // Eliminar
-  function delItem(id){if(confirm("¿Eliminar producto?")){data=data.filter(x=>x.id!==id);save();}}
+  const grupos={};
+  filtered.forEach(it=>{
+    if(!grupos[it.cat])grupos[it.cat]=[];
+    grupos[it.cat].push(it);
+  });
 
-  // Sumar rápido
-  function addOne(id){const it=data.find(x=>x.id==id);if(it){it.qty+=1;save();}}
-
-  // Salida
-  const $modalSalida=q("#modalSalida"),$salidaTitle=q("#salidaTitle"),
-        $salidaInfo=q("#salidaInfo"),$salidaQty=q("#salidaQty"),
-        $confirmSalida=q("#confirmSalida"),$cancelSalida=q("#cancelSalida");
-  let salidaId=null;
-  function openSalida(id){
-    salidaId=id;const it=data.find(x=>x.id==id);if(!it)return;
-    $salidaTitle.textContent=`Dar salida: ${it.name}`;
-    $salidaInfo.textContent=`Stock disponible: ${it.qty.toFixed(2)} ${it.unit}`;
-    $salidaQty.value=1;$modalSalida.style.display="flex";}
-  $confirmSalida.onclick=()=>{
-    if(!salidaId)return;const it=data.find(x=>x.id==salidaId);if(!it)return;
-    const num=parseFloat($salidaQty.value);
-    if(isNaN(num)||num<=0){alert("Cantidad inválida");return;}
-    if(num>it.qty){alert("No puedes dar salida mayor al stock");return;}
-    it.qty=Math.max(0,it.qty-num);save();$modalSalida.style.display="none";};
-  $cancelSalida.onclick=()=>{$modalSalida.style.display="none";};
-
-  // Editar
-  const $modalEdit=q("#modalEdit"),$editName=q("#editName"),$editQty=q("#editQty"),
-        $editMin=q("#editMin"),$editUnit=q("#editUnit"),$editCat=q("#editCat"),
-        $confirmEdit=q("#confirmEdit"),$cancelEdit=q("#cancelEdit");
-  let editId=null;
-  function openEdit(id){
-    editId=id;const it=data.find(x=>x.id==id);if(!it)return;
-    $editName.value=it.name;$editQty.value=it.qty;$editMin.value=it.min||0;
-    $editUnit.value=it.unit;$editCat.value=it.cat;
-    $modalEdit.style.display="flex";}
-  $confirmEdit.onclick=()=>{
-    if(!editId)return;const it=data.find(x=>x.id==editId);if(!it)return;
-    const name=$editName.value.trim();const qty=parseFloat($editQty.value);
-    const min=parseFloat($editMin.value)||0;
-    const unit=$editUnit.value;const cat=$editCat.value;
-    if(!name||isNaN(qty)){alert("Datos inválidos");return;}
-    it.name=name;it.qty=qty;it.unit=unit;it.cat=cat;it.min=min;
-    save();$modalEdit.style.display="none";};
-  $cancelEdit.onclick=()=>{$modalEdit.style.display="none";};
-
-  // Exportar a CSV
-  function exportCSV(){
-    if(data.length===0){alert("No hay productos para exportar");return;}
-    let csv="Nombre,Cantidad,Unidad,Categoría,Stock mínimo\n";
-    data.forEach(it=>{
-      csv+=`${it.name},${it.qty.toFixed(2)},${it.unit},${it.cat},${it.min||0}\n`;
+  for(const cat in grupos){
+    const items=grupos[cat];
+    const catDiv=document.createElement("div");
+    catDiv.innerHTML=`<div class="cat-title">${cat}</div>
+      <div class="resumen">Productos: ${items.length}</div>`;
+    items.forEach(it=>{
+      const div=document.createElement("div");
+      div.className="card";
+      div.innerHTML=`
+        <div class="info">
+          <div class="name">${it.name}</div>
+          <div class="details">${it.qty.toFixed(2)} ${it.unit}</div>
+          ${it.min && it.qty < it.min ? `<div class="low">⚠ Stock bajo</div>` : ""}
+        </div>
+        <div>
+          <button class="btn btn-primary btn-sm" onclick="addOne(${it.id})">+1</button>
+          <button class="btn btn-danger btn-sm" onclick="delItem(${it.id})">🗑</button>
+        </div>`;
+      catDiv.appendChild(div);
     });
-    const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
-    const url=URL.createObjectURL(blob);
-    const link=document.createElement("a");
-    link.setAttribute("href",url);
-    link.setAttribute("download","inventario.csv");
-    link.click();
+    list.appendChild(catDiv);
   }
+}
 
+q("#search").addEventListener("input",e=>{
+  searchTerm=e.target.value.toLowerCase();
   render();
+});
+
+function openAdd(){q("#modalAdd").style.display="flex";}
+function closeAdd(){q("#modalAdd").style.display="none";}
+
+function addItem(){
+  const name=q("#addName").value.trim();
+  const qty=parseFloat(q("#addQty").value);
+  const min=parseFloat(q("#addMin").value)||0;
+  const unit=q("#addUnit").value;
+  const cat=q("#addCat").value;
+  if(!name||isNaN(qty)){alert("Datos inválidos");return;}
+  data.push({id:Date.now(),name,qty,unit,cat,min});
+  closeAdd();save();
+}
+
+function delItem(id){
+  if(confirm("¿Eliminar producto?")){
+    data=data.filter(x=>x.id!==id);
+    save();
+  }
+}
+
+function addOne(id){
+  const it=data.find(x=>x.id===id);
+  if(it){it.qty+=1;save();}
+}
+
+function exportCSV(){
+  if(data.length===0){alert("No hay productos");return;}
+  let csv="Nombre,Cantidad,Unidad,Categoría,Stock mínimo\n";
+  data.forEach(it=>{
+    csv+=`${it.name},${it.qty},${it.unit},${it.cat},${it.min||0}\n`;
+  });
+  const blob=new Blob([csv],{type:"text/csv"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="inventario.csv";
+  a.click();
+}
+
+render();
 </script>
 </body>
 </html>
