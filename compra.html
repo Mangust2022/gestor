@@ -11,6 +11,7 @@
   --card:#fff;
   --primary:#4f46e5;
   --danger:#ef4444;
+  --edit:#10b981;
   --text:#1f2937;
 }
 *{box-sizing:border-box;font-family:system-ui}
@@ -20,17 +21,17 @@ header{
   padding:1rem;
   display:flex;
   justify-content:space-between;
-  align-items:center;
 }
 button{
-  background:var(--primary);
-  color:#fff;
   border:none;
-  padding:.5rem 1rem;
-  border-radius:10px;
+  padding:.4rem .8rem;
+  border-radius:8px;
+  color:#fff;
   cursor:pointer;
 }
+button.primary{background:var(--primary)}
 button.danger{background:var(--danger)}
+button.edit{background:var(--edit)}
 button.secondary{background:#6b7280}
 main{
   display:grid;
@@ -48,32 +49,28 @@ ul{list-style:none;padding:0}
   padding:.6rem;
   border-radius:10px;
   cursor:pointer;
-  margin-bottom:.4rem;
   display:flex;
   justify-content:space-between;
-  align-items:center;
-  font-size:.95rem;
+  margin-bottom:.4rem;
 }
 #lists li.active{background:var(--primary);color:#fff}
 #lists li.closed{opacity:.6}
-.list-total{
-  font-weight:bold;
-  font-size:.9rem;
-}
+
 form{
   display:grid;
   grid-template-columns:2fr 1fr 1fr 1fr auto;
   gap:.4rem;
-  margin-bottom:1rem;
 }
-input,select{padding:.5rem}
+input,select{
+  padding:.4rem;
+}
 #products li{
   display:grid;
-  grid-template-columns:2fr 1fr 1fr 1fr auto;
+  grid-template-columns:2fr 1fr 1fr 1fr auto auto;
   gap:.4rem;
   background:#eee;
-  margin:.3rem 0;
   padding:.4rem;
+  margin:.3rem 0;
   border-radius:8px;
 }
 .total{
@@ -83,13 +80,14 @@ input,select{padding:.5rem}
 }
 .actions{
   display:flex;
-  gap:.5rem;
   justify-content:flex-end;
+  gap:.5rem;
   margin-top:1rem;
 }
 @media(max-width:768px){
   main{grid-template-columns:1fr}
   form{grid-template-columns:1fr}
+  #products li{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -98,80 +96,62 @@ input,select{padding:.5rem}
 
 <header>
   <h2>🛒 Listas de Compras</h2>
-  <button id="newList">➕ Nueva Lista</button>
+  <button id="newList" class="primary">➕ Nueva Lista</button>
 </header>
 
 <main>
-  <aside>
-    <h3>Mis listas</h3>
-    <ul id="lists"></ul>
-  </aside>
+<aside>
+  <h3>Mis listas</h3>
+  <ul id="lists"></ul>
+</aside>
 
-  <section>
-    <h3 id="title">Selecciona una lista</h3>
+<section>
+  <h3 id="title">Selecciona una lista</h3>
 
-    <form id="form">
-      <input id="name" placeholder="Producto" required>
-      <input id="qty" type="number" step="any" min="0.01" placeholder="Cantidad" required>
-      <input id="price" type="number" step="any" min="0" placeholder="Precio" required>
-      <select id="type">
-        <option value="unit">Precio unitario</option>
-        <option value="total">Precio total</option>
-      </select>
-      <button type="submit">Agregar</button>
-    </form>
+  <form id="form">
+    <input id="name" placeholder="Producto" required>
+    <input id="qty" type="number" step="any" min="0.01" placeholder="Cantidad" required>
+    <input id="price" type="number" step="any" min="0" placeholder="Precio" required>
+    <select id="type">
+      <option value="unit">Unitario</option>
+      <option value="total">Total</option>
+    </select>
+    <button class="primary">Agregar</button>
+  </form>
 
-    <ul id="products"></ul>
+  <ul id="products"></ul>
 
-    <div class="total">
-      TOTAL LISTA: <span id="total">$0.00</span>
-    </div>
+  <div class="total">
+    TOTAL: <span id="total">$0.00</span>
+  </div>
 
-    <div class="actions">
-      <button id="closeList" class="secondary">Cerrar lista</button>
-      <button id="deleteList" class="danger">Eliminar lista</button>
-    </div>
-  </section>
+  <div class="actions">
+    <button id="closeList" class="secondary">Cerrar lista</button>
+    <button id="deleteList" class="danger">Eliminar lista</button>
+  </div>
+</section>
 </main>
 
 <script>
-/* ===============================
-   ESTADO
-================================ */
 let lists = JSON.parse(localStorage.getItem('shopping_lists')) || {};
 let current = null;
+let editingIndex = null;
 
-/* ===============================
-   UTIL
-================================ */
 const $ = id => document.getElementById(id);
 const save = () => localStorage.setItem('shopping_lists', JSON.stringify(lists));
 const money = n => n.toLocaleString('es-MX',{style:'currency',currency:'MXN'});
 
-/* ===============================
-   CALCULAR TOTAL LISTA
-================================ */
 function listTotal(list){
-  return list.products.reduce((sum,p)=>sum + (p.qty*p.unit),0);
+  return list.products.reduce((s,p)=>s+p.qty*p.unit,0);
 }
 
-/* ===============================
-   LISTAS
-================================ */
 function renderLists(){
   $('lists').innerHTML='';
   Object.keys(lists).forEach(id=>{
-    const l = lists[id];
+    const l=lists[id];
     const li=document.createElement('li');
-
-    li.classList.toggle('active',id===current);
-    li.classList.toggle('closed',l.closed);
-
-    li.innerHTML=`
-      <span>${l.name}${l.closed?' 🔒':''}</span>
-      <span class="list-total">${money(listTotal(l))}</span>
-    `;
-
+    li.className=(id===current?'active ':'')+(l.closed?'closed':'');
+    li.innerHTML=`<span>${l.name}${l.closed?' 🔒':''}</span><strong>${money(listTotal(l))}</strong>`;
     li.onclick=()=>openList(id);
     $('lists').appendChild(li);
   });
@@ -179,14 +159,12 @@ function renderLists(){
 
 function openList(id){
   current=id;
+  editingIndex=null;
   $('title').textContent=lists[id].name;
   renderLists();
   renderProducts();
 }
 
-/* ===============================
-   PRODUCTOS
-================================ */
 function renderProducts(){
   const l=lists[current];
   $('products').innerHTML='';
@@ -195,25 +173,67 @@ function renderProducts(){
   l.products.forEach((p,i)=>{
     const sub=p.qty*p.unit;
     total+=sub;
-
     const li=document.createElement('li');
-    li.innerHTML=`
-      <span>${p.name}</span>
-      <span>${p.qty}</span>
-      <span>${money(p.unit)}</span>
-      <strong>${money(sub)}</strong>
-      ${l.closed?'':'<button class="danger">❌</button>'}
-    `;
 
-    if(!l.closed){
-      li.querySelector('button').onclick=()=>{
-        l.products.splice(i,1);
+    if(editingIndex===i){
+      li.innerHTML=`
+        <input value="${p.name}">
+        <input type="number" step="any" value="${p.qty}">
+        <input type="number" step="any" value="${p.unit}">
+        <select>
+          <option value="unit">Unitario</option>
+          <option value="total">Total</option>
+        </select>
+        <button class="edit">💾</button>
+        <button class="secondary">❌</button>
+      `;
+
+      li.querySelector('.edit').onclick=()=>{
+        const inputs=li.querySelectorAll('input');
+        const select=li.querySelector('select');
+
+        const newName=inputs[0].value.trim();
+        const newQty=parseFloat(inputs[1].value);
+        const price=parseFloat(inputs[2].value);
+        const type=select.value;
+
+        if(!newName || newQty<=0 || price<0) return;
+
+        p.name=newName;
+        p.qty=newQty;
+        p.unit=type==='unit'?price:price/newQty;
+
+        editingIndex=null;
         save();
         renderProducts();
         renderLists();
       };
-    }
 
+      li.querySelector('.secondary').onclick=()=>{
+        editingIndex=null;
+        renderProducts();
+      };
+
+    } else {
+      li.innerHTML=`
+        <span>${p.name}</span>
+        <span>${p.qty}</span>
+        <span>${money(p.unit)}</span>
+        <strong>${money(sub)}</strong>
+        ${l.closed?'':'<button class="edit">✏️</button>'}
+        ${l.closed?'':'<button class="danger">❌</button>'}
+      `;
+
+      if(!l.closed){
+        li.querySelector('.edit').onclick=()=>{ editingIndex=i; renderProducts(); };
+        li.querySelector('.danger').onclick=()=>{
+          l.products.splice(i,1);
+          save();
+          renderProducts();
+          renderLists();
+        };
+      }
+    }
     $('products').appendChild(li);
   });
 
@@ -221,35 +241,22 @@ function renderProducts(){
   $('form').style.display=l.closed?'none':'grid';
 }
 
-/* ===============================
-   NUEVA LISTA
-================================ */
 $('newList').onclick=()=>{
   const name=prompt('Nombre de la lista');
   if(!name) return;
-
   const id=Date.now().toString();
   lists[id]={name,products:[],closed:false};
   save();
   openList(id);
 };
 
-/* ===============================
-   AGREGAR PRODUCTO
-================================ */
 $('form').onsubmit=e=>{
   e.preventDefault();
-  if(!current) return;
-
-  const name=$('name').value.trim();
+  const name=$('name').value;
   const qty=parseFloat($('qty').value);
   const price=parseFloat($('price').value);
   const type=$('type').value;
-
-  if(!name||qty<=0||price<0) return;
-
-  const unit = type==='unit'?price:price/qty;
-
+  const unit=type==='unit'?price:price/qty;
   lists[current].products.push({name,qty,unit});
   save();
   renderProducts();
@@ -257,11 +264,7 @@ $('form').onsubmit=e=>{
   e.target.reset();
 };
 
-/* ===============================
-   CERRAR / ELIMINAR
-================================ */
 $('closeList').onclick=()=>{
-  if(!current) return;
   lists[current].closed=true;
   save();
   renderProducts();
@@ -269,25 +272,16 @@ $('closeList').onclick=()=>{
 };
 
 $('deleteList').onclick=()=>{
-  if(!current) return;
-  if(!lists[current].closed){
-    alert('Solo puedes eliminar listas cerradas');
-    return;
-  }
-  if(!confirm('¿Eliminar esta lista?')) return;
-
+  if(!lists[current].closed) return alert('Solo listas cerradas');
   delete lists[current];
   current=null;
   save();
+  renderLists();
   $('products').innerHTML='';
   $('total').textContent='$0.00';
   $('title').textContent='Selecciona una lista';
-  renderLists();
 };
 
-/* ===============================
-   INIT
-================================ */
 renderLists();
 const ids=Object.keys(lists);
 if(ids.length) openList(ids[0]);
