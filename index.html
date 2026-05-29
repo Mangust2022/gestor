@@ -22,6 +22,7 @@
 --verde:#00b894;
 --rojo:#ff4d4d;
 --glass:rgba(255,255,255,.75);
+--gris:#666;
 }
 
 *{
@@ -73,8 +74,9 @@ color:transparent;
 }
 
 header p{
-color:#666;
+color:var(--gris);
 margin-top:10px;
+font-size:1.1rem;
 }
 
 .card{
@@ -121,6 +123,7 @@ display:flex;
 gap:10px;
 overflow:auto;
 margin-bottom:20px;
+padding-bottom:5px;
 
 }
 
@@ -132,6 +135,7 @@ border-radius:14px;
 background:white;
 cursor:pointer;
 font-weight:600;
+white-space:nowrap;
 
 }
 
@@ -178,6 +182,7 @@ border:none;
 border-radius:14px;
 outline:none;
 background:white;
+font-size:1rem;
 
 }
 
@@ -189,6 +194,7 @@ border-radius:14px;
 cursor:pointer;
 font-weight:600;
 transition:.2s;
+font-size:1rem;
 
 }
 
@@ -218,6 +224,11 @@ background:var(--rojo);
 color:white;
 }
 
+.btn-gold{
+background:var(--dorado);
+color:#333;
+}
+
 .list{
 
 display:grid;
@@ -243,6 +254,7 @@ gap:15px;
 .actions{
 display:flex;
 gap:10px;
+flex-wrap:wrap;
 }
 
 table{
@@ -299,6 +311,8 @@ var(--rosa),
 var(--dorado)
 );
 
+transition:.4s;
+
 }
 
 .toast{
@@ -329,6 +343,52 @@ opacity:1;
 transform:translateY(0);
 }
 
+.presupuesto-box{
+
+background:white;
+padding:20px;
+border-radius:20px;
+margin-top:15px;
+
+}
+
+.presupuesto-actions{
+
+display:flex;
+gap:15px;
+flex-wrap:wrap;
+
+}
+
+.presupuesto-actions input{
+flex:1;
+min-width:200px;
+}
+
+.badge{
+
+padding:6px 12px;
+border-radius:999px;
+font-size:.85rem;
+font-weight:600;
+
+}
+
+.badge-success{
+background:#d4f8e8;
+color:#008f63;
+}
+
+.badge-warning{
+background:#fff2cc;
+color:#a86d00;
+}
+
+.locked{
+opacity:.7;
+border:2px solid var(--dorado);
+}
+
 @media(max-width:768px){
 
 header h1{
@@ -338,6 +398,10 @@ font-size:2.5rem;
 .item{
 flex-direction:column;
 align-items:flex-start;
+}
+
+.presupuesto-actions{
+flex-direction:column;
 }
 
 }
@@ -385,6 +449,55 @@ align-items:flex-start;
 
 </div>
 
+<div class="card">
+
+<h2>💸 Administrar Presupuesto</h2>
+
+<div class="presupuesto-box">
+
+<div class="presupuesto-actions">
+
+<input
+type="number"
+id="presupuestoInput"
+placeholder="Escribe una cantidad">
+
+<button
+class="btn-success"
+onclick="guardarPresupuesto()">
+
+➕ Agregar Dinero
+
+</button>
+
+<button
+class="btn-danger"
+onclick="restarPresupuesto()">
+
+➖ Quitar Dinero
+
+</button>
+
+</div>
+
+<div class="progress">
+<div class="progress-bar" id="barra"></div>
+</div>
+
+<p id="porcentaje">0%</p>
+
+</div>
+
+</div>
+
+<button
+class="btn-gold"
+onclick="fijarTodo()">
+
+📌 Fijar Todo
+
+</button>
+
 <div class="tabs">
 
 <button class="tab active"
@@ -415,35 +528,6 @@ onclick="showSection('playlist',this)">
 </div>
 
 <div class="section active" id="inicio">
-
-<div class="card">
-
-<h2>💰 Configurar presupuesto</h2>
-
-<div class="grid">
-
-<input
-type="number"
-id="presupuestoInput"
-placeholder="Presupuesto">
-
-<button
-class="btn-primary"
-onclick="guardarPresupuesto()">
-
-Guardar
-
-</button>
-
-</div>
-
-<div class="progress">
-<div class="progress-bar" id="barra"></div>
-</div>
-
-<p id="porcentaje">0%</p>
-
-</div>
 
 <div class="grid">
 
@@ -487,6 +571,8 @@ placeholder="Concepto">
 <option>Decoración</option>
 <option>Fotografía</option>
 <option>Banquete</option>
+<option>Pastel</option>
+<option>Maquillaje</option>
 
 </select>
 
@@ -522,7 +608,7 @@ PDF
 <th>Concepto</th>
 <th>Categoría</th>
 <th>Monto</th>
-<th></th>
+<th>Acciones</th>
 
 </tr>
 
@@ -671,6 +757,9 @@ JSON.parse(localStorage.getItem("padrinos")) || [];
 let playlist =
 JSON.parse(localStorage.getItem("playlist")) || [];
 
+let plannerFijado =
+JSON.parse(localStorage.getItem("plannerFijado")) || false;
+
 function guardarLocalStorage(){
 
 localStorage.setItem(
@@ -698,6 +787,11 @@ localStorage.setItem(
 JSON.stringify(playlist)
 );
 
+localStorage.setItem(
+"plannerFijado",
+JSON.stringify(plannerFijado)
+);
+
 }
 
 function toast(texto){
@@ -710,9 +804,27 @@ div.innerText = texto;
 
 document.body.appendChild(div);
 
-setTimeout(()=>div.classList.add("show"),100);
+setTimeout(()=>{
+div.classList.add("show");
+},100);
 
-setTimeout(()=>div.remove(),3000);
+setTimeout(()=>{
+div.remove();
+},3000);
+
+}
+
+function verificarFijado(){
+
+if(plannerFijado){
+
+toast("El planner está fijado 📌");
+
+return true;
+
+}
+
+return false;
 
 }
 
@@ -733,19 +845,67 @@ btn.classList.add("active");
 
 function guardarPresupuesto(){
 
-presupuesto = Number(
+if(verificarFijado()) return;
+
+let cantidad = Number(
 document.getElementById("presupuestoInput").value
 );
+
+if(cantidad <= 0){
+
+toast("Ingresa una cantidad válida");
+
+return;
+
+}
+
+presupuesto += cantidad;
 
 guardarLocalStorage();
 
 actualizarDashboard();
 
-toast("Presupuesto guardado");
+toast("Dinero agregado 💰");
+
+document.getElementById("presupuestoInput").value = "";
+
+}
+
+function restarPresupuesto(){
+
+if(verificarFijado()) return;
+
+let cantidad = Number(
+document.getElementById("presupuestoInput").value
+);
+
+if(cantidad <= 0){
+
+toast("Ingresa una cantidad válida");
+
+return;
+
+}
+
+presupuesto -= cantidad;
+
+if(presupuesto < 0){
+presupuesto = 0;
+}
+
+guardarLocalStorage();
+
+actualizarDashboard();
+
+toast("Dinero removido 💸");
+
+document.getElementById("presupuestoInput").value = "";
 
 }
 
 function agregarGasto(){
+
+if(verificarFijado()) return;
 
 let concepto =
 document.getElementById("concepto").value;
@@ -755,6 +915,14 @@ document.getElementById("categoria").value;
 
 let monto =
 Number(document.getElementById("monto").value);
+
+if(!concepto || monto <= 0){
+
+toast("Completa todos los campos");
+
+return;
+
+}
 
 gastos.push({
 concepto,
@@ -770,9 +938,13 @@ actualizarDashboard();
 
 actualizarGraficas();
 
+toast("Gasto agregado");
+
 }
 
 function eliminarGasto(index){
+
+if(verificarFijado()) return;
 
 gastos.splice(index,1);
 
@@ -783,6 +955,8 @@ renderGastos();
 actualizarDashboard();
 
 actualizarGraficas();
+
+toast("Gasto eliminado");
 
 }
 
@@ -827,8 +1001,18 @@ X
 
 function agregarInvitado(){
 
+if(verificarFijado()) return;
+
 let nombre =
 document.getElementById("nombreInvitado").value;
+
+if(!nombre){
+
+toast("Ingresa un nombre");
+
+return;
+
+}
 
 invitados.push({
 nombre,
@@ -843,9 +1027,13 @@ actualizarDashboard();
 
 actualizarGraficas();
 
+toast("Invitado agregado");
+
 }
 
 function toggleInvitado(index){
+
+if(verificarFijado()) return;
 
 invitados[index].confirmado =
 !invitados[index].confirmado;
@@ -859,6 +1047,8 @@ actualizarGraficas();
 }
 
 function eliminarInvitado(index){
+
+if(verificarFijado()) return;
 
 invitados.splice(index,1);
 
@@ -888,6 +1078,22 @@ lista.innerHTML += `
 <div>
 
 <strong>${inv.nombre}</strong>
+
+<br><br>
+
+<span class="badge ${
+inv.confirmado
+? 'badge-success'
+: 'badge-warning'
+}">
+
+${
+inv.confirmado
+? 'Confirmado'
+: 'Pendiente'
+}
+
+</span>
 
 </div>
 
@@ -926,15 +1132,26 @@ X
 
 function agregarPadrino(){
 
+if(verificarFijado()) return;
+
 let nombre =
 document.getElementById("nombrePadrino").value;
 
 let aporte =
 document.getElementById("aportePadrino").value;
 
+if(!nombre || !aporte){
+
+toast("Completa todos los campos");
+
+return;
+
+}
+
 padrinos.push({
 nombre,
-aporte
+aporte,
+sellado:false
 });
 
 guardarLocalStorage();
@@ -943,9 +1160,75 @@ renderPadrinos();
 
 actualizarGraficas();
 
+toast("Padrino agregado");
+
+}
+
+function editarPadrino(index){
+
+if(verificarFijado()) return;
+
+if(padrinos[index].sellado){
+
+toast("Este padrino está sellado 🔒");
+
+return;
+
+}
+
+let nuevoNombre = prompt(
+"Editar nombre",
+padrinos[index].nombre
+);
+
+let nuevoAporte = prompt(
+"Editar aporte",
+padrinos[index].aporte
+);
+
+if(nuevoNombre !== null){
+padrinos[index].nombre = nuevoNombre;
+}
+
+if(nuevoAporte !== null){
+padrinos[index].aporte = nuevoAporte;
+}
+
+guardarLocalStorage();
+
+renderPadrinos();
+
+actualizarGraficas();
+
+toast("Padrino editado");
+
+}
+
+function sellarPadrino(index){
+
+if(verificarFijado()) return;
+
+padrinos[index].sellado = true;
+
+guardarLocalStorage();
+
+renderPadrinos();
+
+toast("Padrino sellado 🔒");
+
 }
 
 function eliminarPadrino(index){
+
+if(verificarFijado()) return;
+
+if(padrinos[index].sellado){
+
+toast("No puedes eliminar un padrino sellado");
+
+return;
+
+}
 
 padrinos.splice(index,1);
 
@@ -954,6 +1237,8 @@ guardarLocalStorage();
 renderPadrinos();
 
 actualizarGraficas();
+
+toast("Padrino eliminado");
 
 }
 
@@ -968,17 +1253,46 @@ padrinos.forEach((p,index)=>{
 
 lista.innerHTML += `
 
-<div class="item">
+<div class="item ${
+p.sellado ? 'locked' : ''
+}">
 
 <div>
 
-<strong>${p.nombre}</strong>
+<strong>
+${p.nombre}
+${p.sellado ? ' 🔒' : ''}
+</strong>
 
-<br>
+<br><br>
 
 🎁 ${p.aporte}
 
 </div>
+
+<div class="actions">
+
+<button
+class="btn-primary"
+onclick="editarPadrino(${index})">
+
+Editar
+
+</button>
+
+${
+!p.sellado
+? `
+<button
+class="btn-success"
+onclick="sellarPadrino(${index})">
+
+Sellar
+
+</button>
+`
+: ''
+}
 
 <button
 class="btn-danger"
@@ -990,6 +1304,8 @@ X
 
 </div>
 
+</div>
+
 `;
 
 });
@@ -998,8 +1314,18 @@ X
 
 function agregarCancion(){
 
+if(verificarFijado()) return;
+
 let cancion =
 document.getElementById("cancion").value;
+
+if(!cancion){
+
+toast("Escribe una canción");
+
+return;
+
+}
 
 playlist.push(cancion);
 
@@ -1007,15 +1333,21 @@ guardarLocalStorage();
 
 renderPlaylist();
 
+toast("Canción agregada");
+
 }
 
 function eliminarCancion(index){
+
+if(verificarFijado()) return;
 
 playlist.splice(index,1);
 
 guardarLocalStorage();
 
 renderPlaylist();
+
+toast("Canción eliminada");
 
 }
 
@@ -1050,20 +1382,33 @@ X
 
 }
 
+function fijarTodo(){
+
+plannerFijado = true;
+
+guardarLocalStorage();
+
+toast("Todo quedó fijado 📌");
+
+}
+
 function actualizarDashboard(){
 
 let gastado = 0;
 
-gastos.forEach(g=>gastado += g.monto);
+gastos.forEach(g=>{
+gastado += g.monto;
+});
 
 document.getElementById("presupuestoView")
-.innerText = "$"+presupuesto;
+.innerText = "$" + presupuesto;
 
 document.getElementById("gastadoView")
-.innerText = "$"+gastado;
+.innerText = "$" + gastado;
 
 document.getElementById("restanteView")
-.innerText = "$"+(presupuesto-gastado);
+.innerText =
+"$" + (presupuesto - gastado);
 
 document.getElementById("invitadosCount")
 .innerText = invitados.length;
@@ -1074,10 +1419,12 @@ presupuesto > 0
 : 0;
 
 document.getElementById("barra")
-.style.width = porcentaje+"%";
+.style.width =
+porcentaje + "%";
 
 document.getElementById("porcentaje")
-.innerText = porcentaje.toFixed(1)+"%";
+.innerText =
+porcentaje.toFixed(1) + "%";
 
 }
 
@@ -1099,9 +1446,7 @@ categorias[g.categoria] =
 if(chart1) chart1.destroy();
 
 chart1 = new Chart(
-
 document.getElementById("graficaGastos"),
-
 {
 type:'doughnut',
 
@@ -1114,7 +1459,6 @@ data:Object.values(categorias)
 }
 
 }
-
 );
 
 let confirmados =
@@ -1126,9 +1470,7 @@ invitados.length - confirmados;
 if(chart2) chart2.destroy();
 
 chart2 = new Chart(
-
 document.getElementById("graficaInvitados"),
-
 {
 type:'pie',
 
@@ -1141,15 +1483,12 @@ data:[confirmados,pendientes]
 }
 
 }
-
 );
 
 if(chart3) chart3.destroy();
 
 chart3 = new Chart(
-
 document.getElementById("graficaPadrinos"),
-
 {
 type:'bar',
 
@@ -1164,7 +1503,6 @@ data:padrinos.map(()=>1)
 }
 
 }
-
 );
 
 }
@@ -1173,11 +1511,7 @@ function exportarPDF(tipo){
 
 const { jsPDF } = window.jspdf;
 
-const doc = new jsPDF({
-orientation:"portrait",
-unit:"mm",
-format:"letter"
-});
+const doc = new jsPDF();
 
 doc.setFontSize(22);
 
@@ -1244,7 +1578,9 @@ y += 10;
 padrinos.forEach(p=>{
 
 doc.text(
-`${p.nombre} - ${p.aporte}`,
+`${p.nombre} - ${p.aporte} ${
+p.sellado ? '🔒' : ''
+}`,
 20,
 y
 );
@@ -1271,7 +1607,7 @@ y += 10;
 
 }
 
-doc.save(tipo+".pdf");
+doc.save(tipo + ".pdf");
 
 }
 
